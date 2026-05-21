@@ -1,0 +1,15 @@
+load(":module_definition.bzl","gen4m_modules")
+
+package(
+    default_visibility = [
+        "//visibility:public",
+    ],
+)
+
+platforms = [
+    "mt7961",
+    "mt7926",
+    "mt7902"
+]
+
+gen4m_modules(platforms)
