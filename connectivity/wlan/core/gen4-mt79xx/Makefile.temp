@@ -1,0 +1,46 @@
+##############################################################
+# Used to trigger the Makefile and output actual build parameters
+##############################################################
+export DRIVER_DIR ?= $(PWD)
+#LINUX_SRC=/lib/modules/$(shell uname -r)/build
+
+export CONFIG_MTK_COMBO_WIFI_HIF ?= usb
+export CONFIG_GKI_SUPPORT ?= y
+export MODULE_NAME ?= wlan_mt7961
+export WM_RAM ?= dtv
+export CFG_PROJECT ?= dtv_main
+export MTK_COMBO_CHIP ?= MT7961
+export CONFIG_MTK_PREALLOC_MEMORY ?= y
+export CONFIG_CHIP_RESET_KO_SUPPORT ?= y
+export VERSION ?= 6
+export PATCHLEVEL ?= 12
+export SUBLEVEL ?= 18
+export CONFIG_BUILD_RESETKO ?= n
+export CONFIG_BUILD_MTPREALLOC ?= n
+export DEVICE_MODULES_PATH := DEVICE_MODULES_PATH
+export srctree := srctree
+export TOP := TOP
+
+
+all: print-ccflags
+
+EXTRA_ARGS = \
+	CONFIG_MTK_COMBO_WIFI_HIF=$(CONFIG_MTK_COMBO_WIFI_HIF) \
+	CONFIG_GKI_SUPPORT=$(CONFIG_GKI_SUPPORT) \
+	MODULE_NAME=$(MODULE_NAME) \
+	WM_RAM=$(WM_RAM) \
+	CFG_PROJECT=$(CFG_PROJECT) \
+	MTK_COMBO_CHIP=$(MTK_COMBO_CHIP) \
+	CONFIG_MTK_PREALLOC_MEMORY=$(CONFIG_MTK_PREALLOC_MEMORY) \
+	CONFIG_CHIP_RESET_KO_SUPPORT=$(CONFIG_CHIP_RESET_KO_SUPPORT) \
+	VERSION=$(VERSION) \
+	PATCHLEVEL=$(PATCHLEVEL) \
+	SUBLEVEL=$(SUBLEVEL) \
+	srctree=$(srctree) \
+	DEVICE_MODULES_PATH=$(DEVICE_MODULES_PATH) \
+	TOP=$(TOP)
+
+print-ccflags:
+	+make M=$(DRIVER_DIR) $(EXTRA_ARGS) V=1 src=$(DRIVER_DIR) -f $(DRIVER_DIR)/Makefile print-ccflags_ddk
+
+.PHONY: all print-ccflags
