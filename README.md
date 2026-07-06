@@ -62,3 +62,5 @@
 | spinel-v-oss | REDMI Note 15 | Android U | alps-mp-s0.mp1.tc8sp2-cs1-xm.V1.143.1 |[spinel-v-oss](https://github.com/MiCode/MTK_kernel_modules/tree/spinel-v-oss) |
 | flare-w-oss | Redmi Pad SE 8.7 | Android W | t-alps-release-v0.mp1.tc8sp3-V1.121 |[flare-w-oss](https://github.com/MiCode/MTK_kernel_modules/tree/flare-w-oss) |
 | spark-w-oss | Redmi Pad SE 4G / Redmi Pad SE 8.7 4G | Android W | t-alps-release-v0.mp1.tc8sp3-V1.121 |[spark-w-oss](https://github.com/MiCode/MTK_kernel_modules/tree/spark-w-oss) |
+| bsp-chagall-w-oss | Xiaomi 17T | Android W | alps-mp-v0.mp1.tc8sp6-V1 | [bsp-chagall-w-oss](https://github.com/MiCode/MTK_kernel_modules/tree/bsp-chagall-w-oss ) |
+
