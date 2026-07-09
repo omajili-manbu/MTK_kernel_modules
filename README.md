@@ -9,6 +9,7 @@
 | biloba-r-oss | Redmi Note 8 | Android R | MTK | [biloba-r-oss](https://github.com/MiCode/MTK_kernel_modules/tree/biloba-r-oss) |
 | cannon-q-oss | Redmi Note 9 | Android Q | MTK | [cannon-q-oss](https://github.com/MiCode/MTK_kernel_modules/tree/cannon-q-oss) |
 | camellia-r-oss | Redmi Note 10 | Android R | MTK | [camellia-r-oss](https://github.com/MiCode/MTK_kernel_modules/tree/camellia-r-oss) |
+| camellian-t-oss | POCO M3 Pro 5G / Redmi Note 10 5G / Redmi Note 10T | Android T | alps-mp-s0.mp1.tc8sp-mt6785 |[camellian-t-oss](https://github.com/MiCode/MTK_kernel_modules/tree/camellian-t-oss) |
 | cannon-r-oss | Redmi Note 9 | Android R | MTK | [merlin-r-oss](https://github.com/MiCode/MTK_kernel_modules/tree/cannon-r-oss) |
 | cezanne-q-oss | Redmi K30 Ultra | Android Q | MTK | [cezanne-q-oss](https://github.com/MiCode/MTK_kernel_modules/tree/cezanne-q-oss) |
 | cezanne-r-oss | Redmi 10X, Redmi 10X Pro, Redmi K30 Ultra | Android R | MTK | [cezanne-r-oss](https://github.com/MiCode/MTK_kernel_modules/tree/cezanne-r-oss) |
