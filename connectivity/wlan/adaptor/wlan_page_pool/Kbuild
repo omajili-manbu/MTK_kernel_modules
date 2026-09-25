@@ -16,5 +16,5 @@ KBUILD_MODPOST_FAIL_ON_WARNINGS := y
 # WIFI PAGE POOL Module
 ###############################################################################
 MODULE_NAME := wlan_page_pool
-obj-m += $(MODULE_NAME).o
+obj-$(CONFIG_DEVICE_MODULES_ALLOW_BUILTIN) += $(MODULE_NAME).o
 $(MODULE_NAME)-objs += wifi_page_pool.o
