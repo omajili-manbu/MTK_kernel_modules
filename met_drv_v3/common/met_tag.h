@@ -27,7 +27,7 @@ void met_sched_switch(void *data, bool preempt, struct task_struct *prev, struct
 #else
 void met_sched_switch(void *data, bool preempt, struct task_struct *prev, struct task_struct *next);
 #endif
-extern int tracing_mark_write(int type, unsigned int class_id,
+extern int met_tracing_mark_write(int type, unsigned int class_id,
 		const char *name, unsigned int value,
 		unsigned int value2, unsigned int value3);
 

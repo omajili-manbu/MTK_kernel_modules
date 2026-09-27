@@ -24,7 +24,7 @@
 #include "switch.h"
 #include "trace.h"
 #include "met_drv.h"
-#include "met_tag.h" /* for tracing_mark_write */
+#include "met_tag.h" /* for met_tracing_mark_write */
 #include "mtk_typedefs.h"
 
 #include "cpu_pmu.h"	/* for using kernel perf PMU driver */
@@ -226,8 +226,7 @@ static void __met_hrtimer_register(void *unused)
 	if (!(met_switch.mode & MT_SWITCH_EVENT_TIMER)) {
 
 		hrtimer = &met_cpu_ptr->hrtimer;
-		hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-		hrtimer->function = met_hrtimer_notify;
+		hrtimer_setup(hrtimer, met_hrtimer_notify, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 
 		if (DEFAULT_HRTIMER_EXPIRE) {
 			met_cpu_ptr->work_enabled = 1;
@@ -457,8 +456,7 @@ int sampler_start(void)
 		met_cpu_ptr = per_cpu_ptr(met_cpu, cpu);
 		met_cpu_ptr->work_enabled = 0;
 		met_cpu_ptr->hrtimer_online_check = 0;
-		hrtimer_init(&met_cpu_ptr->hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-		met_cpu_ptr->hrtimer.function = met_hrtimer_notify;
+		hrtimer_setup(&met_cpu_ptr->hrtimer, met_hrtimer_notify, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 		INIT_DELAYED_WORK(&met_cpu_ptr->dwork, wq_sync_buffer);
 	}
 
@@ -632,8 +630,8 @@ void met_hrtimer_suspend(void __always_unused *data, u64 suspend_ns, u64 suspend
 		return;
 
 	met_set_suspend_notify(1);
-	/* tracing_mark_write(MET_SUSPEND); */
-	tracing_mark_write(TYPE_MET_SUSPEND, 0, 0, 0, 0, 0);
+	/* met_tracing_mark_write(MET_SUSPEND); */
+	met_tracing_mark_write(TYPE_MET_SUSPEND, 0, 0, 0, 0, 0);
 
 	/* print suspend timestamp & counter */
 	MET_TRACE("TS: %llu GPT: %llX", suspend_ns, suspend_cycles);
@@ -657,8 +655,8 @@ void met_hrtimer_resume(void __always_unused *data, u64 resume_cycles)
 	/* get current COUNT */
 	MET_TRACE("TS: %llu GPT: %llX", sched_clock(), __arch_counter_get_cntvct());
 
-	/* tracing_mark_write(MET_RESUME); */
-	tracing_mark_write(TYPE_MET_RESUME, 0, 0, 0, 0, 0);
+	/* met_tracing_mark_write(MET_RESUME); */
+	met_tracing_mark_write(TYPE_MET_RESUME, 0, 0, 0, 0, 0);
 
 	list_for_each_entry(c, &met_list, list) {
 		if (c->resume)

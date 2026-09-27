@@ -307,7 +307,10 @@ const struct mae_plat_data *g_data;
  * MAE_INFO = 0
  * MAE_DEBUG = 1
  */
-int mae_log_level_value;
+/* rodin 4-3: 与 mtk-mae.c 的 mae_log_level_value 同链撞名；isp8 侧改名，
+ * 并用宏别名让 mtk-mae.h 里的 MAE_INFO/MAE_DEBUG 宏继续解析到本变量。 */
+int mae_log_level_value_isp8;
+#define mae_log_level_value mae_log_level_value_isp8
 int mae_trigger_cmdq_timeout;
 int fld_debug_1;
 int mae_dbf_on;
@@ -320,7 +323,7 @@ uint32_t mae_preultra_write;
 uint32_t mae_rdma_debug_sel;
 uint32_t mae_read_back_val;
 
-module_param(mae_log_level_value, int, 0644);
+module_param(mae_log_level_value_isp8, int, 0644);
 module_param(mae_trigger_cmdq_timeout, int, 0644);
 module_param(fld_debug_1, int, 0644);
 module_param(mae_dbf_on, int, 0644);
@@ -3641,10 +3644,9 @@ int mtk_mae_isp8_probe(struct platform_device *pdev)
 }
 
 
-int mtk_mae_isp8_remove(struct platform_device *pdev)
+void mtk_mae_isp8_remove(struct platform_device *pdev) /* rodin 4-3: 6.18 .remove=void */
 {
 	dev_info(&pdev->dev ,"%s +-", __func__);
-	return 0;
 }
 
 static struct mae_plat_data mae_plat_data_isp8 = {

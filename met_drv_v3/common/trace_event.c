@@ -105,7 +105,8 @@ void pm_qos_update_request(void *data, int pm_qos_class, s32 value)
 #ifdef pm_qos_update_target
 #undef pm_qos_update_target
 #endif
-void pm_qos_update_target(void *data, unsigned int action, int prev_value, int curr_value)
+void met_pm_qos_update_target(void *data, unsigned int action, int prev_value, int curr_value) /* rodin 4-3: 与内核 kernel/power/qos.c 的 pm_qos_update_target 同链撞名，改名；
+               * 注册用的探针字符串 "pm_qos_update_target" 保持原样 */
 {
 	char class_name[64];
 
@@ -160,7 +161,7 @@ static void met_event_start(void)
 		if (met_tracepoint_probe_reg("pm_qos_update_request", pm_qos_update_request))
 			break;
 
-		if (met_tracepoint_probe_reg("pm_qos_update_target", pm_qos_update_target))
+		if (met_tracepoint_probe_reg("pm_qos_update_target", met_pm_qos_update_target))
 			break;
 
 		event_power_registered = 1;

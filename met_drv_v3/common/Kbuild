@@ -14,7 +14,20 @@ else
 $(info ======== MET Built in ... ========)
 endif
 
+# rodin 4-3: 本文件被两种形态复用——
+#  (a) vendor 原形态 M=met_drv_v3（顶层 Kbuild include 本文件）：对象前缀 common/
+#  (b) rodin 树内 =y（drivers/Makefile.ext 直接挂 common/，M=common）：前缀须为空，
+#      且 MET_ROOT_DIR/MET_COMMON_DIR/MET_API_DIR 由顶层 Kbuild 定义，这里补齐。
+#  注：vendor 顶层 Kbuild 在 CONFIG_MTK_MET != m 时会改走 default/ 桩模块，
+#      rodin 内建要的是真实实现，故直接挂本目录并在此补齐变量。
+ifeq ($(notdir $(src)),common)
+MET_ROOT_DIR := $(patsubst %/common,%,$(if $(filter /%,$(src)),,$(srctree)/)$(src))
+MET_COMMON_DIR := $(MET_ROOT_DIR)/common
+MET_API_DIR := $(MET_ROOT_DIR)/met_api
+MET_CORE :=
+else
 MET_CORE := common
+endif
 
 obj-$(CONFIG_MTK_MET) := met.o
 

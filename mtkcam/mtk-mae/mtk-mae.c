@@ -1294,7 +1294,7 @@ static int mtk_mae_video_device_open(struct file *filp)
 		if (ret)
 			goto err_free_ctrl_handler;
 #endif
-		v4l2_fh_add(&ctx->fh);
+		v4l2_fh_add(&ctx->fh, filp);
 	}
 
 	filp->private_data = &ctx->fh;
@@ -1337,7 +1337,7 @@ static int mtk_mae_video_device_release(struct file *filp)
 		v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
 #endif
 
-		v4l2_fh_del(&ctx->fh);
+		v4l2_fh_del(&ctx->fh, filp);
 		v4l2_fh_exit(&ctx->fh);
 
 #if (M2M_ENABLE == 0)
@@ -2139,9 +2139,8 @@ int mtk_mae_probe(struct platform_device *pdev)
 			return -ENOMEM;
 	}
 
-	ret = dma_set_max_seg_size(dev, UINT_MAX);
-	if (ret)
-		mae_dev_info(dev, "Failed to set DMA segment size\n");
+	/* rodin 4-3: 6.18 dma_set_max_seg_size 返回 void */
+	dma_set_max_seg_size(dev, UINT_MAX);
 
 	dev_set_drvdata(dev, mae_dev);
 	mae_dev->dev = dev;
@@ -2247,7 +2246,7 @@ err_destroy_mutex:
 	return ret;
 }
 
-int mtk_mae_remove(struct platform_device *pdev)
+void mtk_mae_remove(struct platform_device *pdev) /* rodin 4-3: 6.18 .remove=void */
 {
 	struct mtk_mae_dev *mae_dev = dev_get_drvdata(&pdev->dev);
 
@@ -2264,7 +2263,6 @@ int mtk_mae_remove(struct platform_device *pdev)
 	// fd->frame_done_wq = NULL;
 
 	mutex_destroy(&mae_dev->vdev_lock);
-	return 0;
 }
 
 static void mtk_mae_shutdown(struct platform_device *pdev)
@@ -2306,5 +2304,5 @@ static struct platform_driver mtk_mae_driver = {
 module_platform_driver(mtk_mae_driver);
 MODULE_AUTHOR("Ming-Hsuan Chaing <ming-hsuan.chiang@mediatek.com>");
 MODULE_LICENSE("GPL v2");
-MODULE_IMPORT_NS(DMA_BUF);
+MODULE_IMPORT_NS("DMA_BUF");
 MODULE_DESCRIPTION("Mediatek MAE driver");
