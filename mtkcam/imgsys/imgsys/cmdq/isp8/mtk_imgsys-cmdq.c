@@ -178,7 +178,7 @@ static void module_uninit(struct kref *kref)
 #endif
 }
 
-void mtk_imgsys_mod_put(struct mtk_imgsys_dev *imgsys_dev)
+void mtk_imgsys_cmdq_mod_put(struct mtk_imgsys_dev *imgsys_dev) /* rodin batch4-4: 与 isp8 模块撞名且实现不同 */
 {
 	struct kref *kref;
 
@@ -186,7 +186,7 @@ void mtk_imgsys_mod_put(struct mtk_imgsys_dev *imgsys_dev)
 	kref_put(kref, module_uninit);
 }
 
-void mtk_imgsys_mod_get(struct mtk_imgsys_dev *imgsys_dev)
+void mtk_imgsys_cmdq_mod_get(struct mtk_imgsys_dev *imgsys_dev) /* rodin batch4-4: 同上 */
 {
 	struct kref *kref;
 
@@ -364,14 +364,13 @@ static int mtk_imgsys_cmdq_probe(struct platform_device *pdev)
 }
 
 
-static int mtk_imgsys_cmdq_remove(struct platform_device *pdev)
-{
+static void mtk_imgsys_cmdq_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
     if (imgsys_cmdq_dbg_enable())
 	dev_dbg(&pdev->dev, "- E. imgsys cmdq driver remove\n");
 	devm_kfree(&pdev->dev, imgsys_cmdq_dev);
     if (imgsys_cmdq_dbg_enable())
 	dev_dbg(&pdev->dev, "- X. imgsys cmdq driver remove success\n");
-	return 0;
 }
 
 static const struct of_device_id mtk_imgsys_cmdq_of_match[] = {

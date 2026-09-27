@@ -2,5 +2,5 @@
 
 obj-y += cam/
 
-# enable with unit_test
-obj-y += unit_test/
+# rodin batch4-4: unit_test/ removed (device ships no cam-isp8-ut.ko;
+# obj-y there was unconditional and would build a non-shipping module)

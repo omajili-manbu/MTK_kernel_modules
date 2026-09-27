@@ -14,6 +14,6 @@ $(info KO_IMGSENSOR_CODE_PATH=$(KO_IMGSENSOR_CODE_PATH))
 
 subdir-ccflags-y += -I$(KO_IMGSENSOR_CODE_PATH)/
 
-obj-y += src-v4l2/
 obj-y += src-isp8/
-obj-y += src_spm-isp8/
+# rodin batch4-4: src-v4l2/ and src_spm-isp8/ are NOT built -- the device
+# ships only imgsensor_isp8.ko + imgsensor-glue_isp8.ko (isp8 variants).

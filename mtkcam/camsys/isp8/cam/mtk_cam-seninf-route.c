@@ -2128,7 +2128,7 @@ int mtk_cam_seninf_s_stream_mux(struct seninf_ctx *ctx)
 		seninf_logd(ctx,
 			"is not secure, won't Sensor kernel init seninf_ca");
 	else {
-		if (!is_pkvm_enabled()) {
+		if (!mtk_cam_is_pkvm_enabled()) {
 			if (!seninf_ca_open_session())
 				dev_info(ctx->dev, "seninf_ca_open_session fail");
 

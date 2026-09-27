@@ -286,15 +286,14 @@ err_alloc:
 	return ret;
 }
 
-static int mtk_imgsys_frm_sync_remove(struct platform_device *pdev)
-{
+static void mtk_imgsys_frm_sync_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct mtk_img_frm_sync *frm_sync_dev = platform_get_drvdata(pdev);
 
 	mtk_img_frm_sync_uninit_isp8(frm_sync_dev);
 	devm_kfree(&pdev->dev, frm_sync_dev);
 	cdev_del(&frm_sync_dev->frm_sync_cdev);
 	unregister_chrdev_region(frm_sync_dev->frm_sync_devno, 1);
-	return 0;
 }
 
 static const struct of_device_id mtk_imgsys_frm_sync_of_match[] = {

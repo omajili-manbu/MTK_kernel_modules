@@ -2794,7 +2794,7 @@ static void mtk_cam_watchdog_monitor_loop(struct work_struct *work)
 
 static void mtk_cam_watchdog_timer_callback(struct timer_list *t)
 {
-	struct mtk_cam_watchdog *wd = from_timer(wd, t, timer);
+	struct mtk_cam_watchdog *wd = timer_container_of(wd, t, timer);
 
 	atomic_set(&wd->timer_signaled, 1);
 	wake_up_interruptible(&wd->monitor_wq);
@@ -2862,7 +2862,7 @@ void mtk_cam_watchdog_stop(struct mtk_cam_watchdog *wd)
 	if (!atomic_cmpxchg(&wd->started, 1, 0))
 		return;
 
-	del_timer_sync(&wd->timer);
+	timer_delete_sync(&wd->timer);
 	ts_timer = ktime_get_boottime_ns();
 	atomic_set(&wd->timer_signaled, 1);
 	wake_up_interruptible(&wd->monitor_wq);

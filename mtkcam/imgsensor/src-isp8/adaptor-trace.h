@@ -13,7 +13,7 @@
 #include <linux/tracepoint.h>
 #include <linux/trace_events.h>
 
-TRACE_EVENT(tracing_mark_write,
+TRACE_EVENT(tracing_mark_write_imgsensor,
 	TP_PROTO(const char *fmt, va_list *va),
 	TP_ARGS(fmt, va),
 	TP_STRUCT__entry(

@@ -3591,9 +3591,8 @@ int mtk_imgsys_probe(struct platform_device *pdev)
 			devm_kzalloc(imgsys_dev->dev, sizeof(*pdev->dev.dma_parms), GFP_KERNEL);
 	}
 	if (pdev->dev.dma_parms) {
-		ret = dma_set_max_seg_size(imgsys_dev->dev, (unsigned int)DMA_BIT_MASK(34));
-		if (ret)
-			dev_info(imgsys_dev->dev, "Failed to set DMA segment size\n");
+		/* rodin batch4-4: 6.18 起 dma_set_max_seg_size() 返回 void（原样调用即可） */
+		dma_set_max_seg_size(imgsys_dev->dev, (unsigned int)DMA_BIT_MASK(34));
 	}
 
 	if (of_property_read_u32_index(imgsys_dev->dev->of_node,
@@ -3771,7 +3770,7 @@ err_release_working_buf_pool:
 }
 EXPORT_SYMBOL(mtk_imgsys_probe);
 
-int mtk_imgsys_remove(struct platform_device *pdev)
+void mtk_imgsys_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */
 {
 	struct mtk_imgsys_dev *imgsys_dev = dev_get_drvdata(&pdev->dev);
 
@@ -3787,7 +3786,6 @@ int mtk_imgsys_remove(struct platform_device *pdev)
 	#endif
 	imgsys_cmdq_release(imgsys_dev);
 
-	return 0;
 }
 EXPORT_SYMBOL(mtk_imgsys_remove);
 
@@ -3893,6 +3891,6 @@ module_platform_driver(mtk_imgsys_driver);
 #endif
 MODULE_AUTHOR("Frederic Chen <frederic.chen@mediatek.com>");
 MODULE_LICENSE("GPL v2");
-MODULE_IMPORT_NS(DMA_BUF);
+MODULE_IMPORT_NS("DMA_BUF");
 MODULE_DESCRIPTION("Mediatek DIP driver");
 

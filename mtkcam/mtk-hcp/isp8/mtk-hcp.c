@@ -47,13 +47,12 @@
 #include "mtk-hcp_isp8.h"
 
 
-#ifdef CONFIG_MTK_IOMMU_V2
-#include "mtk_iommu_ext.h"
-#elif defined(CONFIG_DEVICE_MODULES_MTK_IOMMU)
-#include "mach/mt_iommu.h"
-#elif defined(CONFIG_MTK_M4U)
-#include "m4u.h"
-#endif
+/* rodin batch4-4: 本文件对 m4u/mt_iommu 的调用点为 0（实测 grep 无 m4u_ / mt_iommu
+ * 符号引用）；真正的 iommu 接口来自下方 #include "iommu_debug.h"
+ * （mtk_iommu_register_fault_callback 等）。mach/mt_iommu.h 在本 vendor 快照里
+ * 不存在（全树 find 零命中），且 CONFIG_MTK_IOMMU_V2 / MTK_M4U 均未定义，
+ * 该 include 链只贡献一个失效分支，整段摘除。
+ */
 
 #ifdef CONFIG_MTK_M4U
 #include "m4u.h"
@@ -2510,9 +2509,8 @@ static int mtk_hcp_probe(struct platform_device *pdev)
 			devm_kzalloc(hcp_dev->dev, sizeof(*hcp_dev->dev->dma_parms), GFP_KERNEL);
 	}
 	if (hcp_dev->dev->dma_parms) {
-		ret = dma_set_max_seg_size(hcp_dev->dev, (unsigned int)DMA_BIT_MASK(34));
-		if (ret)
-			dev_info(hcp_dev->dev, "Failed to set DMA segment size\n");
+		/* rodin batch4-4: 6.18 起 dma_set_max_seg_size() 返回 void */
+		dma_set_max_seg_size(hcp_dev->dev, (unsigned int)DMA_BIT_MASK(34));
 	}
 
 	atomic_set(&(hcp_dev->have_slb), 0);
@@ -2653,8 +2651,8 @@ static const struct of_device_id mtk_hcp_match[] = {
 };
 MODULE_DEVICE_TABLE(of, mtk_hcp_match);
 
-static int mtk_hcp_remove(struct platform_device *pdev)
-{
+static void mtk_hcp_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 
 	struct mtk_hcp *hcp_dev = platform_get_drvdata(pdev);
 	int i = 0;
@@ -2684,7 +2682,6 @@ static int mtk_hcp_remove(struct platform_device *pdev)
 
     if (hcp_dbg_enable())
 	dev_dbg(&pdev->dev, "- X. hcp driver remove.\n");
-	return 0;
 }
 
 bool hcp_dbg_enable(void)
@@ -2704,6 +2701,6 @@ static struct platform_driver mtk_hcp_driver = {
 
 module_platform_driver(mtk_hcp_driver);
 
-MODULE_IMPORT_NS(DMA_BUF);
+MODULE_IMPORT_NS("DMA_BUF");
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("Mediatek hetero control process driver");

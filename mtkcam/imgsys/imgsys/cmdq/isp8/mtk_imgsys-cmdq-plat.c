@@ -2361,7 +2361,7 @@ void mtk_imgsys_power_ctrl_plat8(struct mtk_imgsys_dev *imgsys_dev, bool isPower
 			imgsys_dev->sw_pm_flow_cnt |= PRE_PWR_ON_3;
 
 			/*set default value for hw module*/
-			mtk_imgsys_mod_get(imgsys_dev);
+			mtk_imgsys_cmdq_mod_get(imgsys_dev);
 
 			for (i = 0; i < imgsys_dev->modules_num; i++)
 				if ((BIT(i) & img_main_modules) && imgsys_dev->modules[i].set)
@@ -2404,7 +2404,7 @@ void mtk_imgsys_power_ctrl_plat8(struct mtk_imgsys_dev *imgsys_dev, bool isPower
 				);
 			}
 
-			mtk_imgsys_mod_put(imgsys_dev);
+			mtk_imgsys_cmdq_mod_put(imgsys_dev);
 
 			imgsys_dev->sw_pm_flow_cnt |= PRE_PWR_OFF_2;
 			pm_ret = pm_runtime_put_sync(imgsys_dev->dev);
@@ -2528,4 +2528,4 @@ struct imgsys_cmdq_cust_data imgsys_cmdq_data_8 = {
 	.dvfs_dbg_en = imgsys_dvfs_dbg_enable_plat8,
 	.quick_onoff_en = imgsys_quick_onoff_enable_plat8,
 };
-MODULE_IMPORT_NS(DMA_BUF);
+MODULE_IMPORT_NS("DMA_BUF");

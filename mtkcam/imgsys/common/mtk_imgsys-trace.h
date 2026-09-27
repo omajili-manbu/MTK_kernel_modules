@@ -19,7 +19,7 @@
 
 #define IMGSYS_TRACE_LEN 1024
 
-TRACE_EVENT(tracing_mark_write,
+TRACE_EVENT(tracing_mark_write_imgsys,
 	TP_PROTO(char *s),
 	TP_ARGS(s),
 	TP_STRUCT__entry(

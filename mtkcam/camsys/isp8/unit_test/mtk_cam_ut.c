@@ -1742,13 +1742,12 @@ static int mtk_cam_vcore_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int mtk_cam_vcore_remove(struct platform_device *pdev)
-{
+static void mtk_cam_vcore_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct device *dev = &pdev->dev;
 
 	pm_runtime_disable(dev);
 
-	return 0;
 }
 
 static int mtk_cam_vcore_runtime_suspend(struct device *dev)
@@ -1823,9 +1822,8 @@ static int mtk_cam_ut_probe(struct platform_device *pdev)
 	}
 
 	if (dev->dma_parms) {
-		ret = dma_set_max_seg_size(dev, UINT_MAX);
-		if (ret)
-			dev_info(dev, "Failed to set DMA segment size\n");
+		/* rodin batch4-4: 6.18 起 dma_set_max_seg_size() 返回 void */
+		dma_set_max_seg_size(dev, UINT_MAX);
 	}
 
 
@@ -1911,8 +1909,8 @@ static int mtk_cam_ut_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int mtk_cam_ut_remove(struct platform_device *pdev)
-{
+static void mtk_cam_ut_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct mtk_cam_ut *ut =
 		(struct mtk_cam_ut *)platform_get_drvdata(pdev);
 #if WITH_POWER_DRIVER
@@ -1920,7 +1918,6 @@ static int mtk_cam_ut_remove(struct platform_device *pdev)
 #endif
 	cam_unreg_char_dev(ut);
 
-	return 0;
 }
 
 static int mtk_cam_ut_pm_suspend(struct device *dev)

@@ -2939,11 +2939,10 @@ err_create_pda_class:
 	return 0;
 }
 
-static int PDA_remove(struct platform_device *pdev)
-{
+static void PDA_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	PDA_UnRegCharDev();
 	pm_runtime_disable(&pdev->dev);
-	return 0;
 }
 
 static int PDA_suspend(struct platform_device *pdev, pm_message_t mesg)
@@ -3042,10 +3041,9 @@ static int PDA2_probe(struct platform_device *pdev)
 	return nRet;
 }
 
-static int PDA2_remove(struct platform_device *pdev)
-{
+static void PDA2_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	pm_runtime_disable(&pdev->dev);
-	return 0;
 }
 
 //////////////////////////////////////// PDA driver //////////////////////////
@@ -3123,5 +3121,5 @@ module_init(camera_pda_init);
 module_exit(camera_pda_exit);
 MODULE_DESCRIPTION("Camera PDA driver");
 MODULE_AUTHOR("MM6SW3");
-MODULE_IMPORT_NS(DMA_BUF);
+MODULE_IMPORT_NS("DMA_BUF");
 MODULE_LICENSE("GPL");

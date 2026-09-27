@@ -109,9 +109,8 @@ static int mtk_cam_larb_probe(struct platform_device *pdev)
 	}
 
 	if (dev->dma_parms) {
-		ret = dma_set_max_seg_size(dev, UINT_MAX);
-		if (ret)
-			dev_info(dev, "Failed to set DMA segment size\n");
+		/* rodin batch4-4: 6.18 起 dma_set_max_seg_size() 返回 void */
+		dma_set_max_seg_size(dev, UINT_MAX);
 	}
 
 	ret = of_property_read_u32(dev->of_node, "mediatek,larb-id",
@@ -127,14 +126,13 @@ static int mtk_cam_larb_probe(struct platform_device *pdev)
 	return component_add(dev, &mtk_cam_pm_component_ops);
 }
 
-static int mtk_cam_larb_remove(struct platform_device *pdev)
-{
+static void mtk_cam_larb_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct device *dev = &pdev->dev;
 
 	pm_runtime_disable(dev);
 
 	component_del(dev, &mtk_cam_pm_component_ops);
-	return 0;
 }
 
 static const struct of_device_id mtk_cam_larb_match[] = {

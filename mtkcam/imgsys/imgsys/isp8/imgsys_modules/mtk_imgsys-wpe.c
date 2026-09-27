@@ -881,4 +881,4 @@ void imgsys_wpe_uninit(struct mtk_imgsys_dev *imgsys_dev)
 	}
 
 }
-MODULE_IMPORT_NS(DMA_BUF);
+MODULE_IMPORT_NS("DMA_BUF");

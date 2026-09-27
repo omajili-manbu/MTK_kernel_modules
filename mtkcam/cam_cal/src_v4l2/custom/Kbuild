@@ -24,7 +24,7 @@ endif
 # XIAOMI END
 
 # Common code
-obj-m += camera_eeprom_v4l2.o
+obj-$(CONFIG_MTK_V4L2_CAM_CAL) += camera_eeprom_v4l2.o
 camera_eeprom_v4l2-objs := ../common/$(COMMON_VERSION)/eeprom_driver.o
 camera_eeprom_v4l2-objs += ../common/$(COMMON_VERSION)/eeprom_i2c_common_driver.o
 camera_eeprom_v4l2-objs += ../common/$(COMMON_VERSION)/eeprom_utils.o

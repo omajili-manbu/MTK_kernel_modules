@@ -10,6 +10,8 @@
 #include <linux/dma-direction.h>
 #include <linux/dma-heap.h>
 #include <linux/fdtable.h>
+#include <linux/cdev.h> /* rodin batch4-4: 6.18 的 fs.h 不再带 struct cdev */
+#include <linux/cdev.h> /* rodin batch4-4: 6.18 的 fs.h 不再带 struct cdev */
 #include <linux/mutex.h>
 #include <linux/platform_device.h>
 #include <linux/scatterlist.h>

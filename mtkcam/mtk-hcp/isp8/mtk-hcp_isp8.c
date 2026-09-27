@@ -4527,4 +4527,4 @@ struct mtk_hcp_data isp8_hcp_data = {
 	.partial_flush = NULL,
 };
 #endif
-MODULE_IMPORT_NS(DMA_BUF);
+MODULE_IMPORT_NS("DMA_BUF");

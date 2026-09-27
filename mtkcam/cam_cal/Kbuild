@@ -1,1 +1,1 @@
-obj-m += src_v4l2/
+obj-$(CONFIG_MTK_V4L2_CAM_CAL) += src_v4l2/

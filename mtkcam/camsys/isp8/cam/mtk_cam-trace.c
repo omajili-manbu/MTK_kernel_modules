@@ -22,6 +22,6 @@ void mtk_cam_trace(const char *fmt, ...)
 	va_list args;
 
 	va_start(args, fmt);
-	trace_tracing_mark_write(fmt, &args);
+	trace_tracing_mark_write_camsys(fmt, &args);
 	va_end(args);
 }

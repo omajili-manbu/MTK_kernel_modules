@@ -1197,8 +1197,8 @@ static int mtk_ut_raw_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int mtk_ut_raw_remove(struct platform_device *pdev)
-{
+static void mtk_ut_raw_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct device *dev = &pdev->dev;
 	struct mtk_ut_raw_device *drvdata = dev_get_drvdata(dev);
 	int i;
@@ -1214,7 +1214,6 @@ static int mtk_ut_raw_remove(struct platform_device *pdev)
 
 	kfifo_free(&drvdata->msgfifo);
 
-	return 0;
 }
 
 static int mtk_ut_raw_pm_suspend(struct device *dev)
@@ -1528,8 +1527,8 @@ static int mtk_ut_yuv_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int mtk_ut_yuv_remove(struct platform_device *pdev)
-{
+static void mtk_ut_yuv_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct device *dev = &pdev->dev;
 	struct mtk_ut_yuv_device *drvdata = dev_get_drvdata(dev);
 	int i;
@@ -1543,7 +1542,6 @@ static int mtk_ut_yuv_remove(struct platform_device *pdev)
 	for (i = 0; i < drvdata->num_clks; i++)
 		clk_put(drvdata->clks[i]);
 
-	return 0;
 }
 
 
@@ -1765,8 +1763,8 @@ static int mtk_ut_rms_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int mtk_ut_rms_remove(struct platform_device *pdev)
-{
+static void mtk_ut_rms_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct device *dev = &pdev->dev;
 	struct mtk_ut_rms_device *drvdata = dev_get_drvdata(dev);
 	int i;
@@ -1780,7 +1778,6 @@ static int mtk_ut_rms_remove(struct platform_device *pdev)
 	for (i = 0; i < drvdata->num_clks; i++)
 		clk_put(drvdata->clks[i]);
 
-	return 0;
 }
 
 static int mtk_ut_rms_pm_suspend(struct device *dev)
@@ -1920,9 +1917,8 @@ static int mtk_ut_larb_probe(struct platform_device *pdev)
 	}
 
 	if (dev->dma_parms) {
-		ret = dma_set_max_seg_size(dev, UINT_MAX);
-		if (ret)
-			dev_info(dev, "Failed to set DMA segment size\n");
+		/* rodin batch4-4: 6.18 起 dma_set_max_seg_size() 返回 void */
+		dma_set_max_seg_size(dev, UINT_MAX);
 	}
 #if WITH_POWER_DRIVER
 	pm_runtime_enable(dev);
@@ -1935,8 +1931,8 @@ static int mtk_ut_larb_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int mtk_ut_larb_remove(struct platform_device *pdev)
-{
+static void mtk_ut_larb_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct device *dev = &pdev->dev;
 
 	dev_info(dev, "%s disable larb\n", __func__);
@@ -1944,7 +1940,6 @@ static int mtk_ut_larb_remove(struct platform_device *pdev)
 	pm_runtime_put(dev);
 	pm_runtime_disable(dev);
 #endif
-	return 0;
 }
 
 static const struct of_device_id mtk_ut_larb_of_ids[] = {

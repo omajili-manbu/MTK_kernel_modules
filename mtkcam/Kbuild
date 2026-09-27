@@ -14,16 +14,26 @@ $(info KO_MTKCAM_INCLUDE_PATH=$(KO_MTKCAM_INCLUDE_PATH))
 
 subdir-ccflags-y += -I$(KO_MTKCAM_CODE_PATH)/ -I$(KO_MTKCAM_INCLUDE_PATH)/
 
-obj-y += camsys/
-obj-m += scpsys/
-obj-m += cam_cal/
+# rodin batch4-4: camsys/ 只下潜 isp8/rpmsg/remoteproc。父 camsys/Kbuild 的
+# `obj-y += isp7_1/ isp7s/ isp7sp/` 是无条件行，而这三个平台的 cam/Kbuild 都以
+# CONFIG_VIDEO_MTK_ISP_CAMSYS 为门（=y）⇒ 整挂会编出三个设备没有的模块。
+obj-y += camsys/isp8/
+obj-y += camsys/rpmsg/
+obj-y += camsys/remoteproc/
+# scpsys/（mtk_aov，批 4-5）原为硬编 obj-m，本批不编，留待 4-5 换门控。
+# cam_cal/ 原为硬编 obj-m，改为门控。
+obj-$(CONFIG_MTK_V4L2_CAM_CAL) += cam_cal/
 obj-$(CONFIG_VIDEO_MTK_ISP_IMGSYS) += imgsys/
-obj-$(CONFIG_VIDEO_MTK_ISP_HCP) += mtk-hcp/
+# mtk-hcp/ 原门是 VIDEO_MTK_ISP_HCP（legacy 模块 mtk_hcp，设备无此 blob）；
+# 设备出货的是 mtk_hcp_isp8.ko，故改由 HCP_ISP8 下潜（父 Kbuild 只负责进入目录，
+# 目录内 legacy/ 与 isp8/ 各自的门照旧生效）。
+obj-$(CONFIG_VIDEO_MTK_ISP_HCP_ISP8) += mtk-hcp/
 obj-$(CONFIG_VIDEO_MTK_ISP_IMGSYS) += mtk-ipesys-me/
 obj-$(CONFIG_MTK_CAMERA_FD_ISP7S_ISP7SP)	+= mtk-aie/
 obj-$(CONFIG_MTK_CAMERA_MAE_SUPPORT) += mtk-mae/
 
-obj-$(CONFIG_MTK_CAMERA_DPE_ISP7SP)	 += mtk-dpe/
+# mtk-dpe/ 原门是 DPE_ISP7SP（=n）；设备出货 camera_dpe_isp8.ko ⇒ 改由 ISP8 下潜。
+obj-$(CONFIG_MTK_CAMERA_DPE_ISP8) += mtk-dpe/
 obj-$(CONFIG_MTK_CAMERA_ISP_PDA_SUPPORT) += mtk-pda/
 obj-$(CONFIG_MTK_C2PS) += sched/
 obj-y += imgsensor/

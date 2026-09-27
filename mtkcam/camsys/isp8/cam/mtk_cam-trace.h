@@ -12,7 +12,7 @@
 #include <linux/trace_events.h>
 #include <linux/version.h>
 
-TRACE_EVENT(tracing_mark_write,
+TRACE_EVENT(tracing_mark_write_camsys,
 	TP_PROTO(const char *fmt, va_list *va),
 	TP_ARGS(fmt, va),
 	TP_STRUCT__entry(

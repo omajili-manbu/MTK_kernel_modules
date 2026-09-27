@@ -356,7 +356,7 @@ struct platform_device *DPE_pdev;
 #endif
 
 
-struct device *gdev;
+static struct device *gdev; /* rodin batch4-4: usb_boost_plat.o 已内建同名全局，这里 static 化 */
 struct device *smmudev;
 
 #ifdef KERNEL_DMA_BUFFER
@@ -8790,11 +8790,9 @@ if (DPE_dev->irq > 0) {
 #endif
 	// if (!pm_runtime_enabled(DPE_dev->dev))
 		// goto EXIT;
-	ret = dma_set_max_seg_size(DPE_dev->dev, (unsigned int)DMA_BIT_MASK(34));
-	if (ret) {
-		dev_dbg(DPE_dev->dev, "Failed to set DMA segment size\n");
-		goto EXIT;
-	}
+	/* rodin batch4-4: 6.18 起 dma_set_max_seg_size() 返回 void（不再可能失败，
+	 * 原来的 goto EXIT 错误分支随之消失，语义等价） */
+	dma_set_max_seg_size(DPE_dev->dev, (unsigned int)DMA_BIT_MASK(34));
 	/* Only register char driver in the 1st time */
 	if (nr_DPE_devs == 3) {
 		DPE_dev->clks = isp8_dpe_clks;
@@ -9096,8 +9094,7 @@ EXIT:
 /*******************************************************************************
  * Called when the device is being detached from the driver
  ******************************************************************************/
-static signed int DPE_remove(struct platform_device *pDev)
-{
+static void DPE_remove(struct platform_device *pDev) /* rodin batch4-4: 6.18 .remove is void */{
 	/*struct resource *pRes;*/
 	signed int IrqNum;
 	int i;
@@ -9154,7 +9151,6 @@ static signed int DPE_remove(struct platform_device *pDev)
 	pm_qos_remove_request(&dpe_pm_qos_request);
 #endif
 	//video_unregister_device(&DPE_devs[nr_DPE_devs - 1].vid_dpe_dev);
-	return 0;
 }
 /*******************************************************************************
  *
@@ -10235,5 +10231,5 @@ module_init(DPE_Init);
 module_exit(DPE_Exit);
 MODULE_DESCRIPTION("Camera DPE driver");
 MODULE_AUTHOR("MM3SW2");
-MODULE_IMPORT_NS(DMA_BUF);
+MODULE_IMPORT_NS("DMA_BUF");
 MODULE_LICENSE("GPL");

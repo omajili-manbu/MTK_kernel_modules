@@ -418,9 +418,8 @@ static int ccd_probe(struct platform_device *pdev)
 	}
 
 	if (alloc_dev->dma_parms) {
-		ret = dma_set_max_seg_size(alloc_dev, UINT_MAX);
-		if (ret)
-			dev_info(dev, "Failed to set DMA segment size\n");
+		/* rodin batch4-4: 6.18 起 dma_set_max_seg_size() 返回 void */
+		dma_set_max_seg_size(alloc_dev, UINT_MAX);
 	}
 
 	platform_set_drvdata(pdev, ccd);
@@ -470,8 +469,8 @@ free_rproc:
 	return ret;
 }
 
-static int ccd_remove(struct platform_device *pdev)
-{
+static void ccd_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct mtk_ccd *ccd = platform_get_drvdata(pdev);
 
 	mtk_ccd_mem_release(ccd);
@@ -480,7 +479,6 @@ static int ccd_remove(struct platform_device *pdev)
 	rproc_del(ccd->rproc);
 	rproc_free(ccd->rproc);
 
-	return 0;
 }
 
 static const struct of_device_id mtk_ccd_of_match[] = {

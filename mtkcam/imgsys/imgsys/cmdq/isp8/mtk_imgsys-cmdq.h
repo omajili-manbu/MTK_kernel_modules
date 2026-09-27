@@ -319,3 +319,8 @@ struct imgsys_cmdq_cust_data {
 };
 
 #endif /* _MTK_IMGSYS_CMDQ_H_ */
+
+/* rodin batch4-4: cmdq 模块自有的 mod_get/put（与 mtk_imgsys_isp8 的
+ * mtk_imgsys_mod_get/put 实现不同，=y 同链必须区分；声明为本模块可见） */
+void mtk_imgsys_cmdq_mod_get(struct mtk_imgsys_dev *imgsys_dev);
+void mtk_imgsys_cmdq_mod_put(struct mtk_imgsys_dev *imgsys_dev);

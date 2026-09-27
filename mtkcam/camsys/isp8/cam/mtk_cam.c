@@ -4782,9 +4782,8 @@ static int mtk_cam_vcore_probe(struct platform_device *pdev)
 	}
 
 	if (alloc_dev->dma_parms) {
-		ret = dma_set_max_seg_size(alloc_dev, UINT_MAX);
-		if (ret)
-			dev_err(dev, "%s: Failed to set DMA segment size\n", __func__);
+		/* rodin batch4-4: 6.18 起 dma_set_max_seg_size() 返回 void */
+		dma_set_max_seg_size(alloc_dev, UINT_MAX);
 	}
 	clks = of_count_phandle_with_args(
 				pdev->dev.of_node, "clocks", "#clock-cells");
@@ -4814,13 +4813,12 @@ static int mtk_cam_vcore_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int mtk_cam_vcore_remove(struct platform_device *pdev)
-{
+static void mtk_cam_vcore_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct device *dev = &pdev->dev;
 
 	pm_runtime_disable(dev);
 
-	return 0;
 }
 
 static int mtk_cam_vcore_runtime_suspend(struct device *dev)
@@ -4924,9 +4922,8 @@ static int mtk_cam_probe(struct platform_device *pdev)
 	}
 
 	if (alloc_dev->dma_parms) {
-		ret = dma_set_max_seg_size(alloc_dev, UINT_MAX);
-		if (ret)
-			dev_err(dev, "%s: Failed to set DMA segment size\n", __func__);
+		/* rodin batch4-4: 6.18 起 dma_set_max_seg_size() 返回 void */
+		dma_set_max_seg_size(alloc_dev, UINT_MAX);
 	}
 
 	cam_dev->base =  devm_platform_ioremap_resource_byname(pdev, "base");
@@ -5186,8 +5183,8 @@ fail_return:
 	return ret;
 }
 
-static int mtk_cam_remove(struct platform_device *pdev)
-{
+static void mtk_cam_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct device *dev = &pdev->dev;
 	struct mtk_cam_device *cam_dev = dev_get_drvdata(dev);
 
@@ -5207,7 +5204,6 @@ static int mtk_cam_remove(struct platform_device *pdev)
 	if (GET_PLAT_HW(bwr_support))
 		platform_driver_unregister(&mtk_cam_bwr_driver);
 
-	return 0;
 }
 
 #define SHUTDOWN_TIMEOUT 10000

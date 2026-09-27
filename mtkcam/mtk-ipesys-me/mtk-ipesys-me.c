@@ -222,12 +222,11 @@ static int mtk_ipesys_me_probe(struct platform_device *pdev)
 	return ret_result;
 }
 
-static int mtk_ipesys_me_remove(struct platform_device *pdev)
-{
+static void mtk_ipesys_me_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	pm_runtime_disable(&pdev->dev);
 	devm_kfree(&pdev->dev, me_dev);
 
-	return 0;
 }
 
 static int __maybe_unused mtk_ipesys_me_runtime_suspend(struct device *dev)

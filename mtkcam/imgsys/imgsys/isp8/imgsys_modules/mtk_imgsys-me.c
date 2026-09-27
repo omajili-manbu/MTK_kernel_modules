@@ -23,7 +23,7 @@
 #include "mtk_imgsys-v4l2-debug.h"
 #include "mtk-hcp.h"
 
-struct clk_bulk_data imgsys_isp7_me_clks[] = {
+struct clk_bulk_data mtk_imgsys_isp7_me_clks[] = { /* rodin batch4-4: 与 mtk-ipesys-me 撞名，本模块改名 */
 	{ .id = "ME_CG_IPE" },
 	{ .id = "ME_CG_IPE_TOP" },
 	{ .id = "ME_CG" },
@@ -217,7 +217,7 @@ void imgsys_me_debug_dump(struct mtk_imgsys_dev *imgsys_dev,
 }
 //EXPORT_SYMBOL(ipesys_me_debug_dump);
 
-void ipesys_me_debug_dump_local(void)
+void mtk_imgsys_me_debug_dump_local(void) /* rodin batch4-4: 与 mtk-ipesys-me 撞名，本模块改名 */
 {
 	void __iomem *meRegBA = 0L;
 	void __iomem *mmgRegBA = 0L;

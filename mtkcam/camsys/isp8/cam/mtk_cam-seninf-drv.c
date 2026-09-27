@@ -172,7 +172,7 @@ static const char * const seninf_irq_names[] = {
 
 static bool pkvm_enabled;
 
-bool is_pkvm_enabled(void)
+bool mtk_cam_is_pkvm_enabled(void) /* rodin batch4-4: trusted_mem 侧同名导出保名 */
 {
 	return pkvm_enabled;
 }
@@ -1329,8 +1329,8 @@ static int seninf_core_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int seninf_core_remove(struct platform_device *pdev)
-{
+static void seninf_core_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct device *dev = &pdev->dev;
 	struct seninf_core *core = dev_get_drvdata(dev);
 
@@ -1349,7 +1349,6 @@ static int seninf_core_remove(struct platform_device *pdev)
 
 	//g_seninf_ops->_uninit_irq_fifo(core);
 
-	return 0;
 }
 
 static const struct of_device_id seninf_core_of_match[] = {
@@ -2481,7 +2480,7 @@ static int seninf_csi_s_stream(struct v4l2_subdev *sd, int enable)
 	} else {
 #ifdef SENSOR_SECURE_MTEE_SUPPORT
 		if (ctx->is_secure == 1) {
-			if (!is_pkvm_enabled()) {
+			if (!mtk_cam_is_pkvm_enabled()) {
 				dev_info(ctx->dev, "sensor kernel ca_free");
 				seninf_ca_free();
 
@@ -4225,8 +4224,8 @@ static const struct dev_pm_ops pm_ops = {
 	SET_RUNTIME_PM_OPS(runtime_suspend, runtime_resume, NULL)
 };
 
-static int seninf_remove(struct platform_device *pdev)
-{
+static void seninf_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .remove is void */{
+
 	struct device *dev = &pdev->dev;
 	struct seninf_ctx *ctx = dev_get_drvdata(dev);
 
@@ -4245,7 +4244,6 @@ static int seninf_remove(struct platform_device *pdev)
 
 	mutex_destroy(&ctx->mutex);
 
-	return 0;
 }
 
 static const struct of_device_id seninf_of_match[] = {

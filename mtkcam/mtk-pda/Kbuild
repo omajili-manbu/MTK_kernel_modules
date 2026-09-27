@@ -27,13 +27,13 @@ endif
 
 # driver module
 #obj-m := camera_pda_dummy.o
-ifneq ($(wildcard $(KO_PATH)/isp_8/pda_mt6991.c),)
-obj-m += pda_drv_mt6991.o
-endif
+# rodin batch4-4: 只编 pda_drv_mt6899。三件共享同一个 isp_8/camera_pda.o 会让
+# kbuild 传 -D__KBUILD_MODNAME=kmod_pda_drv_mt6991:pda_drv_mt6899:...，6.18 的
+# MODULE_DEVICE_TABLE 把它 __PASTE 进标识符 ⇒ 编译失败；且设备只出货
+# pda_drv_mt6899.ko（无 mt6991/dummy）。
 ifneq ($(wildcard $(KO_PATH)/isp_8/pda_mt6899.c),)
-obj-m += pda_drv_mt6899.o
+obj-$(CONFIG_MTK_CAMERA_ISP_PDA_SUPPORT) += pda_drv_mt6899.o
 endif
-obj-m += pda_drv_dummy.o
 
 pda_drv_mt6991-objs := isp_8/camera_pda.o isp_8/pda_mt6991.o
 pda_drv_mt6899-objs := isp_8/camera_pda.o isp_8/pda_mt6899.o

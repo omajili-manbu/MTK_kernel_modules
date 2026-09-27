@@ -29,7 +29,7 @@ void __imgsys_systrace(const char *fmt, ...)
 		len = IMGSYS_TRACE_LEN - 1;
 		return;
 	}
-	trace_tracing_mark_write(buf);
+	trace_tracing_mark_write_imgsys(buf);
 }
 EXPORT_SYMBOL(__imgsys_systrace);
 
