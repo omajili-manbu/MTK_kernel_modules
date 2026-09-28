@@ -1796,4 +1796,4 @@ int reset_sensor_flow(void *arg)
 	return 0;
 }
 
-MODULE_IMPORT_NS(DMA_BUF);
+MODULE_IMPORT_NS("DMA_BUF");	/* rodin 4-7: 6.18 宏需字符串字面量（MODULE_INFO(import_ns, ns)） */

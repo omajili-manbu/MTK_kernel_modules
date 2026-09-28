@@ -7,6 +7,7 @@
 
 #include <linux/of.h>
 #include <linux/of_platform.h>
+#include <linux/platform_device.h>	/* rodin 4-7: 6.18 of_platform.h 不再传递 platform_device.h */
 #include <linux/module.h>
 #include <linux/suspend.h>
 #include <linux/version.h>
@@ -609,7 +610,7 @@ err_alloc:
 	return ret;
 }
 
-static int mtk_aov_remove(struct platform_device *pdev)
+static void mtk_aov_remove(struct platform_device *pdev) /* rodin batch4-7: 6.18 driver core 的 .remove 返回 void */
 {
 	struct mtk_aov *aov_dev = platform_get_drvdata(pdev);
 
@@ -633,8 +634,6 @@ static int mtk_aov_remove(struct platform_device *pdev)
 	devm_kfree(&pdev->dev, aov_dev);
 
 	pr_info("%s remove aov driver-\n", __func__);
-
-	return 0;
 }
 
 static int aov_runtime_suspend(struct device *dev)
