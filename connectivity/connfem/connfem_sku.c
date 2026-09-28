@@ -731,7 +731,6 @@ static int cfm_sku_fem_state_populate(struct device_node *np,
 {
 	int err = 0;
 	unsigned int value = 0;
-	const __be32 *p;
 	struct property *prop;
 	unsigned int bk_cnt = 0;
 
@@ -759,13 +758,9 @@ static int cfm_sku_fem_state_populate(struct device_node *np,
 		goto dt_fem_states_err;
 	}
 
-	of_property_for_each_u32(np, CFM_DT_PROP_STATES, prop, p, value) {
-		if (!p) {
-			pr_info("Error when iterating property '%s'",
-				CFM_DT_PROP_STATES);
-			goto dt_fem_states_err;
-		}
-
+	/* rodin(4-6): of_property_for_each_u32 6.18 起 3 参（去 prop/p 中间变量）；
+	 * 原 if(!p) 防御检查在新宏无对应概念，属性有效性由宏在循环前校验 */
+	of_property_for_each_u32(np, CFM_DT_PROP_STATES, value) {
 		cat->op[cat->op_count] = value;
 		cat->op_count++;
 	}
@@ -791,7 +786,6 @@ int cfm_sku_fem_ctrl_pin_populate(struct device_node *np,
 		struct connfem_sku_fem_ctrlpin *ctrl_pin)
 {
 	unsigned int value = 0;
-	const __be32 *p;
 	struct property *prop;
 	unsigned int bk_cnt = 0;
 
@@ -808,14 +802,8 @@ int cfm_sku_fem_ctrl_pin_populate(struct device_node *np,
 	}
 
 	/* Iterate pins elements and populate */
-	of_property_for_each_u32(np, CFM_DT_PROP_PINS, prop, p, value) {
-		if (!p) {
-			pr_info("Error when iterating property '%s', "
-				"idx '%d'",
-				CFM_DT_PROP_PINS,
-				ctrl_pin->count);
-			goto dt_fem_ctrl_pin_err;
-		}
+	/* rodin(4-6): 同上 5参→3参 */
+	of_property_for_each_u32(np, CFM_DT_PROP_PINS, value) {
 
 		if (ctrl_pin->count >= CONNFEM_FEM_PIN_COUNT) {
 			pr_info("Over max supportable number %d of %s",

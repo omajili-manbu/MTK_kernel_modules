@@ -130,9 +130,10 @@ do { \
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
 typedef void(*P_TIMEOUT_HANDLER) (struct timer_list *t);
 typedef struct timer_list *timer_handler_arg;
+/* rodin(4-6): 6.18 删 timer_container_of，改新名 timer_container_of（同语义） */
 #define GET_HANDLER_DATA(arg, data) \
 do { \
-	P_OSAL_TIMER osal_timer = from_timer(osal_timer, arg, timer); \
+	P_OSAL_TIMER osal_timer = timer_container_of(osal_timer, arg, timer); \
 	data = osal_timer->timeroutHandlerData; \
 } while (0)
 #else

@@ -68,7 +68,7 @@ wlan_remove_cb mtk_wlan_remove_function;
 
 struct completion wlan_pendComp;
 
-int g_data;
+static int g_data;
 
 wait_queue_head_t g_waitq_onoff;
 unsigned long g_ulOnoffFlag;

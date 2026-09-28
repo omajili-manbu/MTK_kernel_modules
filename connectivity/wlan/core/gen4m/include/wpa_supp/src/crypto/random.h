@@ -17,7 +17,7 @@
 #define CONFIG_NO_RANDOM_POOL 1 /*add by Jerry*/
 
 #ifdef CONFIG_NO_RANDOM_POOL
-#define random_init(e)                                                         \
+#define wpa_random_init(e)                                                         \
 	do {                                                                   \
 	} while (0)
 #define random_deinit()                                                        \
@@ -32,7 +32,7 @@
 	do {                                                                   \
 	} while (0)
 #else  /* CONFIG_NO_RANDOM_POOL */
-void random_init(const char *entropy_file);
+void wpa_random_init(const char *entropy_file);
 void random_deinit(void);
 void random_add_randomness(const void *buf, size_t len);
 int random_get_bytes(void *buf, size_t len);

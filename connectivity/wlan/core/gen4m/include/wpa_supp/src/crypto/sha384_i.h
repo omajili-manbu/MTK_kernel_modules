@@ -20,7 +20,7 @@
 
 #define sha384_state nan_rdf_sha512_state
 
-void sha384_init(struct sha384_state *md);
+void wpa_sha384_init(struct sha384_state *md);
 int sha384_process(struct sha384_state *md, const unsigned char *in,
 		   unsigned long inlen);
 int sha384_done(struct sha384_state *md, unsigned char *out);

@@ -42,7 +42,7 @@ struct connfem_cdev_context {
  *		    F U N C T I O N   D E C L A R A T I O N S
  ******************************************************************************/
 static int connfem_plat_probe(struct platform_device *pdev);
-static int connfem_plat_remove(struct platform_device *pdev);
+static void connfem_plat_remove(struct platform_device *pdev);
 static void connfem_cfg_dt_check(struct platform_device *pdev,
 		void *ctx, struct connfem_context_ops *ops);
 static enum connfem_type connfem_type_get(struct device_node *dn);
@@ -921,27 +921,27 @@ probe_end:
 	return err;
 }
 
-static int connfem_plat_remove(struct platform_device *pdev)
+static void connfem_plat_remove(struct platform_device *pdev)
 {
 	struct connfem_context_ops *ops = NULL;
 
 	if (!of_match_device(of_match_ptr(connfem_of_ids), &pdev->dev)) {
 		pr_info("Remove, missing platform device data for '%s'",
 			pdev->name);
-		return -EOPNOTSUPP;
+		return; /* rodin(4-6): .remove 6.18 起 void，返回值本就被忽略 */
 	}
 
 	if (!connfem_ctx) {
 		pr_info("Remove, no connfem_ctx alive for '%s'",
 			pdev->name);
-		return 0;
+		return;
 	}
 
 	ops = (struct connfem_context_ops *)connfem_ctx;
 	ops->free(connfem_ctx);
 	connfem_ctx = NULL;
 
-	return 0;
+	return;
 }
 
 static int __init connfem_mod_init(void)

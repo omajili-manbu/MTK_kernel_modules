@@ -1512,13 +1512,13 @@ extern void connectivity_export_show_stack(struct task_struct *tsk,
 /* Not build-in project and not userload */
 #if (CONFIG_WLAN_DRV_BUILD_IN == 0) && (BUILD_QA_DBG == 1)
 #define kalTraceBegin(_fmt, ...) \
-	tracing_mark_write("B|%d|" _fmt "\n", current->tgid, ##__VA_ARGS__)
+	wlan_tracing_mark_write("B|%d|" _fmt "\n", current->tgid, ##__VA_ARGS__)
 
 #define kalTraceEnd() \
-	tracing_mark_write("E|%d\n", current->tgid)
+	wlan_tracing_mark_write("E|%d\n", current->tgid)
 
 #define kalTraceInt(_value, _fmt, ...) \
-	tracing_mark_write("C|%d|" _fmt "|%d\n", \
+	wlan_tracing_mark_write("C|%d|" _fmt "|%d\n", \
 		current->tgid, ##__VA_ARGS__, _value)
 
 #define kalTraceCall() \
@@ -2582,7 +2582,7 @@ uint32_t kalRoundUpPowerOf2(uint32_t v);
 
 /* systrace utilities */
 #if (CONFIG_WLAN_DRV_BUILD_IN == 0) && (BUILD_QA_DBG == 1)
-void tracing_mark_write(const char *fmt, ...);
+void wlan_tracing_mark_write(const char *fmt, ...);
 #endif
 
 #ifdef CFG_MTK_CONNSYS_DEDICATED_LOG_PATH

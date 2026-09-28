@@ -123,7 +123,7 @@ aes_encrypt_init(const u8 *key, size_t len) {
 }
 
 
-int aes_encrypt(void *ctx, const u8 *plain, u8 *crypt)
+int wpa_aes_encrypt(void *ctx, const u8 *plain, u8 *crypt)
 {
 	u32 *rk = ctx;
 

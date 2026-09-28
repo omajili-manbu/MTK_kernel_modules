@@ -4,3 +4,5 @@ obj-m += plat/v050/
 obj-m += plat/v051/
 obj-m += plat/v060/
 obj-m += plat/v061/
+# rodin(builtin 4-6): =y 内建只下钻设备 v051（设备 blob gps_drv_dl_v051）
+obj-$(CONFIG_MTK_COMBO_GPS) += plat/v051/

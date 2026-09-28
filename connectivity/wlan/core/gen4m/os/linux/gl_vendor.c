@@ -654,9 +654,10 @@ int mtk_cfg80211_vendor_string_cmd(struct wiphy *wiphy,
 
 	attr = (struct nlattr *)data;
 #if KERNEL_VERSION(5, 11, 0) <= LINUX_VERSION_CODE
+	/* rodin(4-6): 6.18 删 nla_strlcpy，等价新名 */
 	nla_strscpy(cmd, attr, sizeof(cmd));
 #else
-	nla_strlcpy(cmd, attr, sizeof(cmd));
+	nla_strscpy(cmd, attr, sizeof(cmd));
 #endif
 	return mtk_cfg80211_process_str_cmd(wiphy, wdev, cmd,
 		(data_len > strlen(cmd)) ? strlen(cmd) : data_len);

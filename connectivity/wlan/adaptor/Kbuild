@@ -9,6 +9,15 @@ endif
 
 # Necessary Check
 
+# rodin(builtin 4-6): =y 内建挂载无外部传参，按设备 connac2x 出货形态兜底
+#（=m 外部构建由上层 Makefile 传参，不受影响）
+ifeq ($(CONNAC_VER),)
+CONNAC_VER := 2_0
+endif
+ifeq ($(MODULE_NAME),)
+MODULE_NAME := wmt_chrdev_wifi_connac2
+endif
+
 $(info [wlan] CONNAC_VER=$(CONNAC_VER))
 $(info [wlan] MODULE_NAME=$(MODULE_NAME))
 
@@ -37,6 +46,12 @@ else ifeq ($(CONNAC_VER), 2_0)
     ccflags-y += -DCFG_ANDORID_CONNINFRA_SUPPORT=1
     ccflags-y += -DCFG_ANDORID_CONNINFRA_COREDUMP_SUPPORT=1
     ccflags-y += -DCFG_SUPPORT_CONNAC2X=1
+    # rodin(builtin 4-6): 树内布局补树内等价 -I（对应上面 $(TOP)/vendor 六行）
+    ccflags-y += -I$(srctree)/$(KMOD_REL_DIR)/connectivity/conninfra/include
+    ccflags-y += -I$(srctree)/$(KMOD_REL_DIR)/connectivity/conninfra/conn_drv/connv2/debug_utility
+    ccflags-y += -I$(srctree)/$(KMOD_REL_DIR)/connectivity/conninfra/conn_drv/connv2/debug_utility/include
+    ccflags-y += -I$(srctree)/$(KMOD_REL_DIR)/connectivity/conninfra/conn_drv/connv2/debug_utility/connsyslog
+    ccflags-y += -I$(srctree)/$(KMOD_REL_DIR)/connectivity/conninfra/conn_drv/connv2/debug_utility/coredump
 else
     ccflags-y += -I$(DEVICE_MODULES_PATH)/drivers/misc/mediatek/include/mt-plat
     ccflags-y += -I$(TOP)/vendor/mediatek/kernel_modules/connectivity/common/common_main/include
@@ -67,6 +82,8 @@ ifeq ($(CONFIG_WLAN_DRV_BUILD_IN),y)
 else
     $(warning $(MODULE_NAME) is kernel module)
     obj-m += $(MODULE_NAME).o
+    # rodin(builtin 4-6): =y 内建走真实语义门（不翻 WLAN_DRV_BUILD_IN，同 conninfra）
+    obj-$(CONFIG_MTK_COMBO_WIFI) += $(MODULE_NAME).o
 endif
 
 # Wi-Fi character device driver

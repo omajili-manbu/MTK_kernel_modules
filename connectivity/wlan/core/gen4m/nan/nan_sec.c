@@ -660,25 +660,25 @@ nan_sec_wpa_eapol_key_mic(const u8 *key, size_t key_len, u32 cipher,
 	DBGLOG(NAN, INFO, "[%s] cipher:%d\n", __func__, cipher);
 
 	if (cipher == NAN_CIPHER_SUITE_ID_NCS_SK_GCM_256) {
-		if (hmac_sha384(key, key_len, buf, len, hash)) {
-			DBGLOG(NAN, INFO, "[%s] ERROR! hmac_sha384() failed",
+		if (wpa_hmac_sha384(key, key_len, buf, len, hash)) {
+			DBGLOG(NAN, INFO, "[%s] ERROR! wpa_hmac_sha384() failed",
 			       __func__);
 			return WLAN_STATUS_FAILURE;
 		}
 		os_memcpy(mic, hash, NCS_SK_256_MIC_LEN);
 
-		DBGLOG(NAN, INFO, "[%s] hmac_sha384() Result MIC:\n", __func__);
+		DBGLOG(NAN, INFO, "[%s] wpa_hmac_sha384() Result MIC:\n", __func__);
 		dumpMemory8(mic, NCS_SK_256_MIC_LEN);
 	} else {
 		/* NAN_CIPHER_SUITE_ID_NCS_SK_CCM_128 */
-		if (hmac_sha256(key, key_len, buf, len, hash)) {
-			DBGLOG(NAN, INFO, "[%s] ERROR! hmac_sha256() failed",
+		if (wpa_hmac_sha256(key, key_len, buf, len, hash)) {
+			DBGLOG(NAN, INFO, "[%s] ERROR! wpa_hmac_sha256() failed",
 			       __func__);
 			return WLAN_STATUS_FAILURE;
 		}
 		os_memcpy(mic, hash, NCS_SK_128_MIC_LEN);
 
-		DBGLOG(NAN, INFO, "[%s] hmac_sha256() Result MIC:\n", __func__);
+		DBGLOG(NAN, INFO, "[%s] wpa_hmac_sha256() Result MIC:\n", __func__);
 		dumpMemory8(mic, NCS_SK_128_MIC_LEN);
 	}
 

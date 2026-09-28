@@ -42,6 +42,8 @@ ccflags-y += -I$(DEVICE_MODULES_PATH)/drivers/misc/mediatek/connectivity/power_t
 GPS_PWR_TEST_SUPPORT :=n
 MODULE_NAME := gps_pwr
 obj-m += $(MODULE_NAME).o
+# rodin(builtin 4-6): =y 内建走真实语义门
+obj-$(CONFIG_MTK_COMBO_GPS) += $(MODULE_NAME).o
 
 $(MODULE_NAME)-objs += gpspwr.o
 ifeq ($(GPS_PWR_TEST_SUPPORT),y)

@@ -1760,7 +1760,7 @@ static int btmtk_cif_probe(struct platform_device *pdev)
  * Return Value:
  *     0 if success, otherwise error code
  */
-static int btmtk_cif_remove(struct platform_device *pdev)
+static void btmtk_cif_remove(struct platform_device *pdev)/* rodin(4-6): 6.18 .remove void 化 */
 {
 	struct btmtk_btif_dev *cif_dev = (struct btmtk_btif_dev *)g_sbdev->cif_dev;
 
@@ -1793,7 +1793,7 @@ static int btmtk_cif_remove(struct platform_device *pdev)
 
 	bt_reg_deinit();
 
-	return 0;
+	return;
 }
 
 /* btmtk_cif_register

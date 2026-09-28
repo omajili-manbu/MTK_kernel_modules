@@ -1813,7 +1813,8 @@ kalP2PGOStationUpdate(struct GLUE_INFO *prGlueInfo,
 #endif
 #endif
 
-		cfg80211_new_sta(prP2pGlueInfo->aprRoleHandler,
+		/* rodin(4-6): 6.9+ cfg80211_new_sta 第 1 参 netdev→wdev */
+		cfg80211_new_sta(prP2pGlueInfo->aprRoleHandler->ieee80211_ptr,
 			aucBssid,
 			&rStationInfo, GFP_KERNEL);
 	} else {
@@ -1848,7 +1849,8 @@ kalP2PGOStationUpdate(struct GLUE_INFO *prGlueInfo,
 #endif
 #endif
 
-			cfg80211_del_sta_sinfo(prP2pGlueInfo->aprRoleHandler,
+			/* rodin(4-6): 6.9+ cfg80211_del_sta_sinfo 第 1 参 netdev→wdev */
+			cfg80211_del_sta_sinfo(prP2pGlueInfo->aprRoleHandler->ieee80211_ptr,
 				aucBssid, &rStationInfo, GFP_KERNEL);
 		}
 #if CFG_STAINFO_FEATURE
@@ -1887,7 +1889,8 @@ void kalP2PRddDetectUpdate(struct GLUE_INFO *prGlueInfo,
 		/* cac start disable for next cac slot
 		 * if enable in dfs channel
 		 */
-		prGlueP2pInfo->prWdev->cac_started = FALSE;
+		/* rodin(4-6): 6.18 cac_started 移入 per-link 容器，GO 单 link 用 links[0] */
+		prGlueP2pInfo->prWdev->links[0].cac_started = FALSE;
 		DBGLOG(INIT, INFO,
 			"Update to OS\n");
 		if (prGlueP2pInfo->chandefCsa.chan) {
@@ -1945,7 +1948,8 @@ void kalP2PCacStartedUpdate(struct GLUE_INFO *prGlueInfo,
 		cfg80211_cac_event(
 			prNetdevice,
 			&prGlueP2pInfo->chandefCsa,
-			NL80211_RADAR_CAC_STARTED, GFP_KERNEL);
+			NL80211_RADAR_CAC_STARTED, GFP_KERNEL,
+			0); /* rodin(4-6): 6.18 尾增 link_id，P2P GO 单 link 传 0 */
 #else
 		cfg80211_cac_event(
 			prNetdevice,
@@ -2001,7 +2005,8 @@ void kalP2PCacFinishedUpdate(struct GLUE_INFO *prGlueInfo,
 		cfg80211_cac_event(
 			prNetdevice,
 			&prGlueP2pInfo->chandefCsa,
-			NL80211_RADAR_CAC_FINISHED, GFP_KERNEL);
+			NL80211_RADAR_CAC_FINISHED, GFP_KERNEL,
+			0); /* rodin(4-6): 6.18 尾增 link_id，P2P GO 单 link 传 0 */
 #else
 		cfg80211_cac_event(
 			prNetdevice,
@@ -3583,7 +3588,9 @@ void kalP2pStopApInterface(struct ADAPTER *prAdapter,
 	DBGLOG(P2P, INFO, "AP interface (%s) leaving.\n",
 		prNetdevice->name);
 
-	cfg80211_stop_iface(wiphy, prNetdevice->ieee80211_ptr, GFP_KERNEL);
+	/* rodin(4-6): 6.18 删 cfg80211_stop_iface，改树内 cfg80211_stop_link()
+	 * （等效 stop-iface 流程）；P2P GO 单 link 传 0 */
+	cfg80211_stop_link(wiphy, prNetdevice->ieee80211_ptr, 0, GFP_KERNEL);
 }
 
 #endif /* CFG_ENABLE_WIFI_DIRECT */

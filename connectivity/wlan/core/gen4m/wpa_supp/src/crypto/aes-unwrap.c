@@ -65,7 +65,7 @@ aes_unwrap_supp(const u8 *kek, size_t kek_len, int n, const u8 *cipher,
 			b[4] ^= t >> 24;
 
 			os_memcpy(b + 8, r, 8);
-			aes_decrypt(ctx, b, b);
+			wpa_aes_decrypt(ctx, b, b);
 			os_memcpy(a, b, 8);
 			os_memcpy(r, b + 8, 8);
 			r -= 8;

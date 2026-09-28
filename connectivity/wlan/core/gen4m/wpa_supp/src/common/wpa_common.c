@@ -99,13 +99,13 @@ wpa_eapol_key_mic_wpa(const u8 *key, size_t key_len, int akmp, int ver,
 		/*return hmac_md5(key, key_len, buf, len, mic);*/
 		return -1;
 	case WPA_KEY_INFO_TYPE_HMAC_SHA1_AES:
-		if (hmac_sha1(key, key_len, buf, len, hash)) {
-			wpa_printf(MSG_INFO, "[%s] hmac_sha1 failed!",
+		if (wpa_hmac_sha1(key, key_len, buf, len, hash)) {
+			wpa_printf(MSG_INFO, "[%s] wpa_hmac_sha1 failed!",
 				   __func__);
 			return -1;
 		}
 		/*else*/
-		wpa_printf(MSG_INFO, "[%s] hmac_sha1 success!", __func__);
+		wpa_printf(MSG_INFO, "[%s] wpa_hmac_sha1 success!", __func__);
 		os_memcpy(mic, hash, 16); /* MD5_MAC_LEN */
 		break;
 #if defined(CONFIG_IEEE80211R) || defined(CONFIG_IEEE80211W)

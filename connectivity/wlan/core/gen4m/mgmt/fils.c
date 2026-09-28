@@ -217,7 +217,7 @@ uint32_t filsBuildErpReauthStart(struct ADAPTER *ad, struct FILS_INFO *fils,
 	*cp = EAP_ERP_CS_HMAC_SHA256_128;
 	cp++;
 
-	if (hmac_sha256(erp->rIK, erp->rIKLen, buf, cp - buf, hash) < 0) {
+	if (wpa_hmac_sha256(erp->rIK, erp->rIKLen, buf, cp - buf, hash) < 0) {
 		DBGLOG(FILS, ERROR, "sha256 failed\n");
 		return 0;
 	}
@@ -914,10 +914,10 @@ uint32_t filsProcessErpFinish(struct ADAPTER *ad, struct FILS_INFO *fils,
 		return WLAN_STATUS_FAILURE;
 	}
 
-	if (hmac_sha256(erp->rIK, erp->rIKLen, (const u8 *) hdr,
+	if (wpa_hmac_sha256(erp->rIK, erp->rIKLen, (const u8 *) hdr,
 			end - ((const u8 *) hdr) - hash_len, hash) < 0) {
 		DBGLOG(FILS, ERROR,
-			   "EAP: hmac_sha256 failed\n");
+			   "EAP: wpa_hmac_sha256 failed\n");
 		return WLAN_STATUS_FAILURE;
 	}
 

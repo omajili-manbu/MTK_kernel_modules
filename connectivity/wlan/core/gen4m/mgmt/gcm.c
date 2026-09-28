@@ -645,7 +645,7 @@ static void aes_gctr(
 	memcpy(cb, icb, AES_BLOCK_SIZE);
 	/* Full blocks */
 	for (i = 0; i < n; i++) {
-		/* aes_encrypt(aes, cb, ypos); */
+		/* wpa_aes_encrypt(aes, cb, ypos); */
 		AES_Encrypt(cb, AES_BLOCK_SIZES,
 			key, key_len, ypos, &y_size);
 		xor_block(ypos, xpos);
@@ -658,7 +658,7 @@ static void aes_gctr(
 	last = x + xlen - xpos;
 	if (last) {
 		/* Last, partial block */
-		/* aes_encrypt(aes, cb, tmp); */
+		/* wpa_aes_encrypt(aes, cb, tmp); */
 		AES_Encrypt(cb, AES_BLOCK_SIZES,
 			key, key_len, tmp, &tmp_size);
 		for (i = 0; i < last; i++)

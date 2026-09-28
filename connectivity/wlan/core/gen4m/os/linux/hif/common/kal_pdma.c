@@ -2544,7 +2544,7 @@ end:
 #if CFG_SUPPORT_HRTIMER
 	hrtimer_cancel(&prHifInfo->rTxDelayTimer);
 #else
-	del_timer_sync(&prHifInfo->rTxDelayTimer);
+	timer_delete_sync(&prHifInfo->rTxDelayTimer);
 #endif /* CFG_SUPPORT_HRTIMER */
 	KAL_CLR_BIT(HIF_TX_DATA_DELAY_TIMER_RUNNING_BIT,
 		    prHifInfo->ulTxDataTimeout);

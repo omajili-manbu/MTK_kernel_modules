@@ -30,7 +30,7 @@ sha512_vector(size_t num_elem, const u8 *addr[], const size_t *len, u8 *mac) {
 	struct nan_rdf_sha512_state ctx = {0};
 	size_t i;
 
-	sha512_init(&ctx);
+	wpa_sha512_init(&ctx);
 	for (i = 0; i < num_elem; i++)
 		if (sha512_process(&ctx, addr[i], len[i]))
 			return -1;
@@ -156,7 +156,7 @@ sha512_compress(struct nan_rdf_sha512_state *md, unsigned char *buf) {
  *   @return CRYPT_OK if successful
  */
 void
-sha512_init(struct nan_rdf_sha512_state *md) {
+wpa_sha512_init(struct nan_rdf_sha512_state *md) {
 	md->curlen = 0;
 	md->length = 0;
 	md->state[0] = CONST64(0x6a09e667f3bcc908);

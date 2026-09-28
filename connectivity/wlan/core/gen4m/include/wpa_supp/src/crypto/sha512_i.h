@@ -22,7 +22,7 @@ struct nan_rdf_sha512_state {
 	u8 buf[SHA512_BLOCK_SIZE];
 };
 
-void sha512_init(struct nan_rdf_sha512_state *md);
+void wpa_sha512_init(struct nan_rdf_sha512_state *md);
 int sha512_process(struct nan_rdf_sha512_state *md, const unsigned char *in,
 		   unsigned long inlen);
 int sha512_done(struct nan_rdf_sha512_state *md, unsigned char *out);

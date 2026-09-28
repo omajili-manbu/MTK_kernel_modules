@@ -5297,17 +5297,9 @@ int mtk_cfg80211_tdls_oper(struct wiphy *wiphy,
 
 #if (CFG_SUPPORT_SINGLE_SKU == 1)
 
-#if (CFG_BUILT_IN_DRIVER == 1)
-/* in kernel-x.x/net/wireless/reg.c */
-#else
-bool is_world_regdom(const char *alpha2)
-{
-	if (!alpha2)
-		return false;
-
-	return (alpha2[0] == '0') && (alpha2[1] == '0');
-}
-#endif
+/* rodin(4-6): 本地拷贝与内核 net/wireless/reg.c 的 is_world_regdom 逐字相同，
+ * 6.18 内核版为全局符号（单镜像撞名），统一用内核版（vmlinux 内直接可见） */
+bool is_world_regdom(const char *alpha2);
 
 void
 mtk_reg_notify(struct wiphy *pWiphy,
@@ -6760,7 +6752,8 @@ int mtk_uninit_ap_role(struct GLUE_INFO *prGlueInfo,
 int mtk_cfg_start_radar_detection(struct wiphy *wiphy,
 				  struct net_device *dev,
 				  struct cfg80211_chan_def *chandef,
-				  unsigned int cac_time_ms)
+				  unsigned int cac_time_ms,
+				  int link_id) /* rodin(4-6): 6.18 新参（MLO link），非 MLO 路径忽略 */
 {
 #if CFG_ENABLE_WIFI_DIRECT && CFG_ENABLE_WIFI_DIRECT_CFG_80211
 	struct GLUE_INFO *prGlueInfo = NULL;
@@ -7439,7 +7432,7 @@ void mtk_cfg_del_intf_link(struct wiphy *wiphy,
 #if (CFG_ADVANCED_80211_MLO == 1) || \
 	(KERNEL_VERSION(6, 1, 0) <= CFG80211_VERSION_CODE)
 int mtk_cfg_add_key(struct wiphy *wiphy,
-		    struct net_device *ndev, int link_id, u8 key_index,
+		    struct wireless_dev *wdev, int link_id, u8 key_index,
 		    bool pairwise, const u8 *mac_addr,
 		    struct key_params *params)
 #else
@@ -7450,6 +7443,7 @@ int mtk_cfg_add_key(struct wiphy *wiphy,
 #endif
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
+	struct net_device *ndev = wdev->netdev; /* rodin(4-6): 6.9+ ops netdev→wdev，桥接下游 */
 	int i4LinkId = MLD_LINK_ID_NONE;
 
 #if (KERNEL_VERSION(6, 1, 0) <= CFG80211_VERSION_CODE)
@@ -7479,7 +7473,7 @@ int mtk_cfg_add_key(struct wiphy *wiphy,
 #if (CFG_ADVANCED_80211_MLO == 1) || \
 	(KERNEL_VERSION(6, 1, 0) <= CFG80211_VERSION_CODE)
 int mtk_cfg_get_key(struct wiphy *wiphy,
-		    struct net_device *ndev, int link_id, u8 key_index,
+		    struct wireless_dev *wdev, int link_id, u8 key_index,
 		    bool pairwise, const u8 *mac_addr, void *cookie,
 		    void (*callback)(void *cookie, struct key_params *))
 #else
@@ -7490,6 +7484,7 @@ int mtk_cfg_get_key(struct wiphy *wiphy,
 #endif
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
+	struct net_device *ndev = wdev->netdev; /* rodin(4-6): 6.9+ ops netdev→wdev，桥接下游 */
 	int i4LinkId = MLD_LINK_ID_NONE;
 
 #if (KERNEL_VERSION(6, 1, 0) <= CFG80211_VERSION_CODE)
@@ -7518,7 +7513,7 @@ int mtk_cfg_get_key(struct wiphy *wiphy,
 #if (CFG_ADVANCED_80211_MLO == 1) || \
 	(KERNEL_VERSION(6, 1, 0) <= CFG80211_VERSION_CODE)
 int mtk_cfg_del_key(struct wiphy *wiphy,
-		    struct net_device *ndev, int link_id, u8 key_index,
+		    struct wireless_dev *wdev, int link_id, u8 key_index,
 		    bool pairwise, const u8 *mac_addr)
 #else
 int mtk_cfg_del_key(struct wiphy *wiphy,
@@ -7527,6 +7522,7 @@ int mtk_cfg_del_key(struct wiphy *wiphy,
 #endif
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
+	struct net_device *ndev = wdev->netdev; /* rodin(4-6): 6.9+ ops netdev→wdev，桥接下游 */
 	int i4LinkId = MLD_LINK_ID_NONE;
 
 #if (KERNEL_VERSION(6, 1, 0) <= CFG80211_VERSION_CODE)
@@ -7592,13 +7588,14 @@ int mtk_cfg_set_default_key(struct wiphy *wiphy,
 #if (CFG_ADVANCED_80211_MLO == 1) || \
 	(KERNEL_VERSION(6, 1, 0) <= CFG80211_VERSION_CODE)
 int mtk_cfg_set_default_mgmt_key(struct wiphy *wiphy,
-		struct net_device *ndev, int link_id, u8 key_index)
+		struct wireless_dev *wdev, int link_id, u8 key_index)
 #else
 int mtk_cfg_set_default_mgmt_key(struct wiphy *wiphy,
 		struct net_device *ndev, u8 key_index)
 #endif
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
+	struct net_device *ndev = wdev->netdev; /* rodin(4-6): 6.9+ ops netdev→wdev，桥接下游 */
 	int i4LinkId = MLD_LINK_ID_NONE;
 
 #if (KERNEL_VERSION(6, 1, 0) <= CFG80211_VERSION_CODE)
@@ -7668,7 +7665,7 @@ int mtk_cfg_get_channel(struct wiphy *wiphy,
 
 #if KERNEL_VERSION(3, 16, 0) <= CFG80211_VERSION_CODE
 int mtk_cfg_get_station(struct wiphy *wiphy,
-			struct net_device *ndev,
+			struct wireless_dev *wdev,
 			const u8 *mac, struct station_info *sinfo)
 #else
 int mtk_cfg_get_station(struct wiphy *wiphy,
@@ -7677,6 +7674,7 @@ int mtk_cfg_get_station(struct wiphy *wiphy,
 #endif
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
+	struct net_device *ndev = wdev->netdev; /* rodin(4-6): 6.9+ ops netdev→wdev，桥接下游 */
 
 	WIPHY_PRIV(wiphy, prGlueInfo);
 
@@ -7698,7 +7696,7 @@ int mtk_cfg_get_station(struct wiphy *wiphy,
 #if CFG_SUPPORT_TDLS
 #if KERNEL_VERSION(3, 16, 0) <= CFG80211_VERSION_CODE
 int mtk_cfg_change_station(struct wiphy *wiphy,
-			   struct net_device *ndev,
+			   struct wireless_dev *wdev,
 			   const u8 *mac, struct station_parameters *params)
 #else
 int mtk_cfg_change_station(struct wiphy *wiphy,
@@ -7707,6 +7705,7 @@ int mtk_cfg_change_station(struct wiphy *wiphy,
 #endif
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
+	struct net_device *ndev = wdev->netdev; /* rodin(4-6): 6.9+ ops netdev→wdev，桥接下游 */
 
 	WIPHY_PRIV(wiphy, prGlueInfo);
 
@@ -7729,7 +7728,7 @@ int mtk_cfg_change_station(struct wiphy *wiphy,
 
 #if KERNEL_VERSION(3, 16, 0) <= CFG80211_VERSION_CODE
 int mtk_cfg_add_station(struct wiphy *wiphy,
-			struct net_device *ndev,
+			struct wireless_dev *wdev,
 			const u8 *mac, struct station_parameters *params)
 #else
 int mtk_cfg_add_station(struct wiphy *wiphy,
@@ -7738,6 +7737,7 @@ int mtk_cfg_add_station(struct wiphy *wiphy,
 #endif
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
+	struct net_device *ndev = wdev->netdev; /* rodin(4-6): 6.9+ ops netdev→wdev，桥接下游 */
 
 	WIPHY_PRIV(wiphy, prGlueInfo);
 
@@ -7981,7 +7981,7 @@ void mtk_tdls_cancel_channel_switch(struct wiphy *wiphy,
 
 #if KERNEL_VERSION(3, 19, 0) <= CFG80211_VERSION_CODE
 int mtk_cfg_del_station(struct wiphy *wiphy,
-			struct net_device *ndev,
+			struct wireless_dev *wdev,
 			struct station_del_parameters *params)
 #elif KERNEL_VERSION(3, 16, 0) <= CFG80211_VERSION_CODE
 int mtk_cfg_del_station(struct wiphy *wiphy,
@@ -7993,6 +7993,7 @@ int mtk_cfg_del_station(struct wiphy *wiphy,
 #endif
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
+	struct net_device *ndev = wdev->netdev; /* rodin(4-6): 6.9+ ops netdev→wdev，桥接下游 */
 
 	WIPHY_PRIV(wiphy, prGlueInfo);
 
@@ -8505,7 +8506,8 @@ int mtk_cfg_assoc(struct wiphy *wiphy,
 int mtk_cfg_remain_on_channel(struct wiphy *wiphy,
 			      struct wireless_dev *wdev,
 			      struct ieee80211_channel *chan,
-			      unsigned int duration, u64 *cookie)
+			      unsigned int duration, u64 *cookie,
+			      const u8 *rx_addr) /* rodin(4-6): 6.18 新参（Rx 地址提示），驱动无此过滤语义，忽略 */
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
 
@@ -8949,7 +8951,7 @@ int mtk_cfg_stop_ap(struct wiphy *wiphy, struct net_device *dev)
 }
 
 int mtk_cfg_set_wiphy_params(struct wiphy *wiphy,
-			     u32 changed)
+			     int radio_idx, u32 changed) /* rodin(4-6): 6.18 新参 radio_idx，单 radio 忽略 */
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
 
@@ -9000,6 +9002,7 @@ int mtk_cfg_set_bitrate_mask(struct wiphy *wiphy,
 
 int mtk_cfg_set_txpower(struct wiphy *wiphy,
 			struct wireless_dev *wdev,
+			int radio_idx, /* rodin(4-6): 6.18 新参，单 radio 忽略 */
 			enum nl80211_tx_power_setting type, int mbm)
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
@@ -9022,6 +9025,7 @@ int mtk_cfg_set_txpower(struct wiphy *wiphy,
 
 int mtk_cfg_get_txpower(struct wiphy *wiphy,
 			struct wireless_dev *wdev,
+			int radio_idx, unsigned int link_id, /* rodin(4-6): 6.18 新参，忽略 */
 			int *dbm)
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
@@ -9160,6 +9164,7 @@ int mtk_cfg80211_update_ft_ies(struct wiphy *wiphy, struct net_device *dev,
 
 #ifdef CFG_SUPPORT_SNIFFER_RADIOTAP
 int mtk_cfg80211_set_monitor_channel(struct wiphy *wiphy,
+			struct net_device *dev, /* rodin(4-6): 6.18 中插 net_device，monitor 以 wiphy 为对象，忽略 */
 			struct cfg80211_chan_def *chandef)
 {
 	struct GLUE_INFO *prGlueInfo;

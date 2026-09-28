@@ -62,7 +62,7 @@
 extern const struct of_device_id connv3_of_ids[];
 
 static int mtk_connv3_probe(struct platform_device *pdev);
-static int mtk_connv3_remove(struct platform_device *pdev);
+static void mtk_connv3_remove(struct platform_device *pdev);
 
 static struct platform_driver g_mtk_connv3_dev_drv = {
 	.probe = mtk_connv3_probe,
@@ -299,7 +299,7 @@ int mtk_connv3_probe(struct platform_device *pdev)
 	return 0;
 }
 
-int mtk_connv3_remove(struct platform_device *pdev)
+void mtk_connv3_remove(struct platform_device *pdev)
 {
 	atomic_set(&g_connv3_hw_init_done, 0);
 
@@ -308,7 +308,7 @@ int mtk_connv3_remove(struct platform_device *pdev)
 	if (g_connv3_drv_dev)
 		g_connv3_drv_dev = NULL;
 
-	return 0;
+	return;
 }
 
 /* put log/variable to file node */

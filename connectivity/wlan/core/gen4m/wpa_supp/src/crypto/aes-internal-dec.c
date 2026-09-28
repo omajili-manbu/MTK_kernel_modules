@@ -168,7 +168,7 @@ rijndaelDecrypt(const u32 rk[/*44*/], int Nr, const u8 ct[16], u8 pt[16]) {
 }
 
 
-int aes_decrypt(void *ctx, const u8 *crypt, u8 *plain)
+int wpa_aes_decrypt(void *ctx, const u8 *crypt, u8 *plain)
 {
 	u32 *rk = ctx;
 

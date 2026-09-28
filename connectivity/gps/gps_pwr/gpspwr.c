@@ -53,7 +53,7 @@ bool has_new_battery_level;
 struct gps_pwr_dev *gps_pwr_devobj;
 static wait_queue_head_t GPS_PWR_wq;
 #define DRV_TYPE_GPS    2
-enum conn_pwr_low_battery_level battery_level;
+enum conn_pwr_low_battery_level static /* rodin(4-6): 与同族拷贝单镜像撞名，仅文件内用 */ battery_level;
 bool gps_pwr_open_state;
 
 int gps_pwr_msg_cb(enum conn_pwr_event_type event_type, void *level)

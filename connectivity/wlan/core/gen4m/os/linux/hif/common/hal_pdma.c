@@ -1810,7 +1810,7 @@ void halTxDelayTimeout(unsigned long arg)
 #else /* CFG_SUPPORT_HRTIMER == 0 */
 #if (KERNEL_VERSION(4, 15, 0) <= LINUX_VERSION_CODE)
 	struct GL_HIF_INFO *prHifInfo =
-		from_timer(prHifInfo, timer, rTxDelayTimer);
+		timer_container_of(prHifInfo, timer, rTxDelayTimer);
 	struct GLUE_INFO *prGlueInfo =
 		(struct GLUE_INFO *)prHifInfo->rTxDelayTimerData;
 #else
@@ -1977,9 +1977,9 @@ bool halHifSwInfoInit(struct ADAPTER *prAdapter)
 
 #if (CFG_SUPPORT_TX_DATA_DELAY == 1)
 #if CFG_SUPPORT_HRTIMER
-	hrtimer_init(&prHifInfo->rTxDelayTimer, CLOCK_MONOTONIC,
+	/* rodin(4-6): 6.18 删 hrtimer_init+function=，改 hrtimer_setup */
+	hrtimer_setup(&prHifInfo->rTxDelayTimer, halTxDelayTimeout, CLOCK_MONOTONIC,
 		HRTIMER_MODE_REL);
-	prHifInfo->rTxDelayTimer.function = halTxDelayTimeout;
 	prHifInfo->rTxDelayTimerData = (unsigned long)prAdapter->prGlueInfo;
 #else /* CFG_SUPPORT_HRTIMER == 0 */
 #if (KERNEL_VERSION(4, 15, 0) <= LINUX_VERSION_CODE)
@@ -2098,18 +2098,18 @@ void halHifSwInfoUnInit(struct GLUE_INFO *prGlueInfo)
 	prSwEmiRingInfo = &prBusInfo->rSwEmiRingInfo;
 #endif /* CFG_MTK_WIFI_SW_EMI_RING */
 
-	del_timer_sync(&prHifInfo->rSerTimer);
+	timer_delete_sync(&prHifInfo->rSerTimer);
 #if (CFG_SUPPORT_TX_DATA_DELAY == 1)
 #if CFG_SUPPORT_HRTIMER
 	hrtimer_cancel(&prHifInfo->rTxDelayTimer);
 #else
-	del_timer_sync(&prHifInfo->rTxDelayTimer);
+	timer_delete_sync(&prHifInfo->rTxDelayTimer);
 #endif /* CFG_SUPPORT_HRTIMER */
 #endif
 
 #if CFG_MTK_MDDP_SUPPORT
 #if (CFG_PCIE_GEN_SWITCH == 1)
-	del_timer_sync(&prHifInfo->rGenSwitch4MddpTimer);
+	timer_delete_sync(&prHifInfo->rGenSwitch4MddpTimer);
 #endif /* CFG_PCIE_GEN_SWITCH */
 #endif /* CFG_MTK_MDDP_SUPPORT */
 
@@ -4873,7 +4873,7 @@ void halHwRecoveryTimeout(unsigned long arg)
 #endif
 {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
-	struct GL_HIF_INFO *prHif = from_timer(prHif, timer, rSerTimer);
+	struct GL_HIF_INFO *prHif = timer_container_of(prHif, timer, rSerTimer);
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *)prHif->rSerTimerData;
 #else
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *)arg;
@@ -5127,7 +5127,7 @@ void halHwRecoveryFromError(struct ADAPTER *prAdapter)
 
 	case ERR_RECOV_WAIT_MCU_NORMAL:
 		if (u4Status & ERROR_DETECT_MCU_NORMAL_STATE) {
-			del_timer_sync(&prHifInfo->rSerTimer);
+			timer_delete_sync(&prHifInfo->rSerTimer);
 #if (CFG_SUPPORT_ADHOC) || (CFG_ENABLE_WIFI_DIRECT)
 			/* update Beacon frame if operating in AP mode. */
 			DBGLOG(HAL, INFO, "SER(T) Host re-initialize BCN\n");

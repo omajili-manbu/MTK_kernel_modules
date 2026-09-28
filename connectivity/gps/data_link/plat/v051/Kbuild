@@ -71,6 +71,8 @@ KBUILD_MODPOST_FAIL_ON_WARNINGS := y
 GPS_PLATFORM := v051
 MODULE_NAME := gps_drv_dl_$(GPS_PLATFORM)
 obj-m += $(MODULE_NAME).o
+# rodin(builtin 4-6): =y 内建走真实语义门
+obj-$(CONFIG_MTK_COMBO_GPS) += $(MODULE_NAME).o
 KO_PATH := $(if $(filter /%,$(src)),,$(srctree)/)$(src)
 
 GPS_DRV_CONTROL_LNA := n

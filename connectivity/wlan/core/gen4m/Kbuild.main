@@ -1875,6 +1875,25 @@ else ifeq ($(CONFIG_MTK_WIFI_CONNINFRA_SUPPORT), y)
     ccflags-y += -I$(TOP)/vendor/mediatek/kernel_modules/connectivity/conninfra/conn_drv/connv2/debug_utility/coredump/platform/include
     ccflags-y += -I$(TOP)/vendor/mediatek/kernel_modules/connectivity/conninfra/conn_drv/connv2/debug_utility/metlog
     ccflags-y += -I$(TOP)/vendor/mediatek/kernel_modules/connectivity/wlan/adaptor
+    # rodin(builtin 4-6): 树内布局无 $(TOP)/vendor，追加树内等价 -I（上面 16 行全部失效）
+    RODIN_CONN_ROOT := $(srctree)/$(KMOD_REL_DIR)/connectivity
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/include
+    ccflags-y += -I$(RODIN_CONN_ROOT)/connfem/include/
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/platform/include
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/base/include
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/debug_utility
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/debug_utility/include
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/debug_utility/connsyslog
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/debug_utility/coredump
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/debug_utility/coredump/platform/include
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/debug_utility/metlog
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/conn_drv/connv2/debug_utility
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/conn_drv/connv2/debug_utility/include
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/conn_drv/connv2/debug_utility/connsyslog
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/conn_drv/connv2/debug_utility/coredump
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/conn_drv/connv2/debug_utility/coredump/platform/include
+    ccflags-y += -I$(RODIN_CONN_ROOT)/conninfra/conn_drv/connv2/debug_utility/metlog
+    ccflags-y += -I$(RODIN_CONN_ROOT)/wlan/adaptor
 else
     CONFIG_WIFI_COREDUMP_SUPPORT=n
     ccflags-y += -DCFG_SUPPORT_CONNINFRA=0

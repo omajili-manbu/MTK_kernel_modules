@@ -345,7 +345,7 @@ int gps_dl_osal_timer_stop(struct gps_dl_osal_timer *pTimer)
 {
 	struct timer_list *timer = &pTimer->timer;
 
-	del_timer(timer);
+	timer_delete(timer);
 	return 0;
 }
 
@@ -353,7 +353,7 @@ int gps_dl_osal_timer_stop_sync(struct gps_dl_osal_timer *pTimer)
 {
 	struct timer_list *timer = &pTimer->timer;
 
-	del_timer_sync(timer);
+	timer_delete_sync(timer);
 	return 0;
 }
 

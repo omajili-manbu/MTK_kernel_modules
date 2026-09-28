@@ -451,7 +451,7 @@ exit:
 	return ret;
 }
 
-static int mtk_axi_remove(struct platform_device *pdev)
+static void mtk_axi_remove(struct platform_device *pdev) /* rodin(4-6): 6.18 .remove void */
 {
 	struct mt66xx_hif_driver_data *prDriverData =
 		platform_get_drvdata(pdev);
@@ -463,7 +463,7 @@ static int mtk_axi_remove(struct platform_device *pdev)
 #endif
 	emi_mem_uninit(prChipInfo, pdev);
 	platform_set_drvdata(pdev, NULL);
-	return 0;
+	return;
 }
 
 static int mtk_axi_suspend(struct platform_device *pdev,

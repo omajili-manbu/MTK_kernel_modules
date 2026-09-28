@@ -81,7 +81,7 @@ hmac_sha384_vector(const u8 *key, size_t key_len, size_t num_elem,
 }
 
 /**
- * hmac_sha384 - HMAC-SHA384 over data buffer (RFC 2104)
+ * wpa_hmac_sha384 - HMAC-SHA384 over data buffer (RFC 2104)
  * @key: Key for HMAC operations
  * @key_len: Length of the key in bytes
  * @data: Pointers to the data area
@@ -90,7 +90,7 @@ hmac_sha384_vector(const u8 *key, size_t key_len, size_t num_elem,
  * Returns: 0 on success, -1 on failure
  */
 int
-hmac_sha384(const u8 *key, size_t key_len, const u8 *data, size_t data_len,
+wpa_hmac_sha384(const u8 *key, size_t key_len, const u8 *data, size_t data_len,
 	    u8 *mac) {
 	return hmac_sha384_vector(key, key_len, 1, &data, &data_len, mac);
 }

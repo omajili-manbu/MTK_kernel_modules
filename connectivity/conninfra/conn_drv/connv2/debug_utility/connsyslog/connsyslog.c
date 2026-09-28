@@ -1387,7 +1387,8 @@ static int connlog_cancel_alarm_timer(void)
 }
 
 
-static enum alarmtimer_restart connlog_alarm_timer_handler(struct alarm *alarm,
+/* rodin(4-6): 6.18 删 enum alarmtimer_restart，alarm 回调原型 void 化 */
+static void connlog_alarm_timer_handler(struct alarm *alarm,
 	ktime_t now)
 {
 	ktime_t kt;
@@ -1412,7 +1413,7 @@ static enum alarmtimer_restart connlog_alarm_timer_handler(struct alarm *alarm,
 	alarm_start_relative(&gLogAlarm.alarm_timer, kt);
 	spin_unlock_irqrestore(&gLogAlarm.alarm_lock, gLogAlarm.flags);
 
-	return ALARMTIMER_NORESTART;
+	return; /* 原 ALARMTIMER_NORESTART：不自动重排，重排在函数体内 alarm_start_relative */
 }
 
 static int connlog_alarm_init(void)

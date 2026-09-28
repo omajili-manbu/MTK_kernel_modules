@@ -316,7 +316,7 @@ inline uint32_t kalRoundUpPowerOf2(uint32_t v)
  *
  */
 /*----------------------------------------------------------------------------*/
-void tracing_mark_write(const char *fmt, ...)
+void wlan_tracing_mark_write(const char *fmt, ...) /* rodin(4-6): 与已内建 mmqos 的同名 systrace 桩撞名，改名；kallsyms 探针字符串不变 */
 {
 #define __BUFFER_SIZE 1024
 	va_list ap;
@@ -2071,16 +2071,15 @@ uint32_t kal_is_skb_gro(struct ADAPTER *prAdapter, uint8_t ucBssIdx)
 	return 0;
 }
 
+/*
+ * rodin(4-6): 6.18 删除 napi_gro_flush，且 napi->rx_list/rx_count 收进 napi->gro、
+ * GRO 冲刷由核心托管（poll→napi_complete_done→gro_normal_list）。手动冲刷改写为
+ * napi_schedule() 触发一次 poll/complete 周期，等价实现积压包提前上行；
+ * GRO 批量节奏由核心 gro normal 批量定时器接管（ms 级）。
+ */
 static inline void napi_gro_flush_list(struct napi_struct *napi)
 {
-	napi_gro_flush(napi, false);
-#if KERNEL_VERSION(5, 4, 0) <= CFG80211_VERSION_CODE
-	if (napi->rx_count) {
-		netif_receive_skb_list(&napi->rx_list);
-		INIT_LIST_HEAD(&napi->rx_list);
-		napi->rx_count = 0;
-	}
-#endif
+	napi_schedule(napi);
 }
 
 static inline void kal_gro_flush_queue(struct GLUE_INFO *prGlueInfo)
@@ -2115,14 +2114,12 @@ void kal_gro_flush(struct ADAPTER *prAdapter)
 	if (CHECK_FOR_TIMEOUT(kalGetTimeTick(),
 		prGlueInfo->tmGROFlushTimeout,
 		prWifiVar->ucGROFlushTimeout)) {
-		napi_gro_flush(&prGlueInfo->napi, false);
-		DBGLOG_LIMITED(INIT, TRACE, "napi_gro_flush.\n");
-#if KERNEL_VERSION(5, 4, 0) <= CFG80211_VERSION_CODE
-		prGlueInfo->u4PendingFlushNum =
-			prGlueInfo->napi.rx_count;
-#else
+		/* rodin(4-6): 6.18 napi_gro_flush 删，改 napi_schedule（冲刷由核心托管）；
+		 * 原"冲后读 rx_count 记剩余积压"无从读取，冲刷发起后记 0（等价：
+		 * u4PendingFlushNum 只作驱动侧再次冲刷的门槛计数） */
+		napi_schedule(&prGlueInfo->napi);
+		DBGLOG_LIMITED(INIT, TRACE, "napi_schedule (was napi_gro_flush).\n");
 		prGlueInfo->u4PendingFlushNum = 0;
-#endif
 	} else
 		prGlueInfo->u4PendingFlushNum++;
 
@@ -6878,7 +6875,7 @@ u_int8_t kalSetTimer(struct GLUE_INFO *prGlueInfo,
 		mod_timer(&prGlueInfo->tickfn,
 			  jiffies + u4Interval * HZ / MSEC_PER_SEC);
 	} else {
-		del_timer_sync(&(prGlueInfo->tickfn));
+		timer_delete_sync(&(prGlueInfo->tickfn));
 
 		prGlueInfo->tickfn.expires = jiffies + u4Interval * HZ /
 					     MSEC_PER_SEC;
@@ -6904,7 +6901,7 @@ u_int8_t kalCancelTimer(struct GLUE_INFO *prGlueInfo)
 
 	clear_bit(GLUE_FLAG_TIMEOUT_BIT, &prGlueInfo->ulFlag);
 
-	if (del_timer_sync(&(prGlueInfo->tickfn)) >= 0)
+	if (timer_delete_sync(&(prGlueInfo->tickfn)) >= 0)
 		return TRUE;
 	else
 		return FALSE;
@@ -7030,7 +7027,7 @@ void kalTimeoutHandler(unsigned long arg)
 {
 #if KERNEL_VERSION(4, 15, 0) <= LINUX_VERSION_CODE
 	struct GLUE_INFO *prGlueInfo =
-		from_timer(prGlueInfo, timer, tickfn);
+		timer_container_of(prGlueInfo, timer, tickfn);
 #else
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *)arg;
 #endif
@@ -14940,7 +14937,9 @@ void kalSetThreadSchPolicyPriority(struct GLUE_INFO *prGlueInfo)
 }
 
 #if KERNEL_VERSION(5, 4, 0) <= CFG80211_VERSION_CODE
-MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+/* rodin(4-6): 原 MODULE_IMPORT_NS(VFS_internal...) 已删——6.18 GKI 该 NS 更名
+ * ANDROID_GKI_VFS_internal_*，且 gen4m 不调用任何 NS 门控 VFS 符号（blob UND
+ * 无 filp_open/kernel_read），import 无对象 */
 #endif
 
 /* For Linux kernel version wrapper */
@@ -14990,7 +14989,7 @@ uint8_t kalRxGroInit(struct net_device *prDev)
 void kalNapiThreadedInit(struct GLUE_INFO *prGlueInfo)
 {
 #if KERNEL_VERSION(5, 15, 0) <= CFG80211_VERSION_CODE
-	if (dev_set_threaded(&prGlueInfo->dummy_dev, TRUE) != 0) {
+	if (dev_set_threaded(prGlueInfo->dummy_dev, TRUE) != 0) {
 		prGlueInfo->napi_thread = NULL;
 		DBGLOG(INIT, ERROR, "Napi Threaded Init Fail\n");
 	} else {
@@ -15013,13 +15012,17 @@ uint8_t kalNapiInit(struct GLUE_INFO *prGlueInfo)
 {
 	spin_lock_init(&prGlueInfo->napi_spinlock);
 	skb_queue_head_init(&prGlueInfo->rRxNapiSkbQ);
-	/* use dummy device to register napi */
-	init_dummy_netdev(&prGlueInfo->dummy_dev);
+	/* rodin(4-6): 6.18 删 init_dummy_netdev，改 alloc_netdev_dummy 分配（kalNapiUninit 释放） */
+	prGlueInfo->dummy_dev = alloc_netdev_dummy(0);
+	if (!prGlueInfo->dummy_dev) {
+		DBGLOG(INIT, ERROR, "alloc_netdev_dummy failed\n");
+		return 1;
+	}
 #if (KERNEL_VERSION(6, 1, 0) <= CFG80211_VERSION_CODE)
-	netif_napi_add(&prGlueInfo->dummy_dev, &prGlueInfo->napi,
+	netif_napi_add(prGlueInfo->dummy_dev, &prGlueInfo->napi,
 			kalNapiPoll);
 #else
-	netif_napi_add(&prGlueInfo->dummy_dev, &prGlueInfo->napi,
+	netif_napi_add(prGlueInfo->dummy_dev, &prGlueInfo->napi,
 			kalNapiPoll, NAPI_POLL_WEIGHT);
 #endif
 #if CFG_SUPPORT_RX_NAPI_THREADED
@@ -15035,6 +15038,8 @@ uint8_t kalNapiInit(struct GLUE_INFO *prGlueInfo)
 uint8_t kalNapiUninit(struct GLUE_INFO *prGlueInfo)
 {
 	netif_napi_del(&prGlueInfo->napi);
+	/* rodin(4-6): 配对释放 alloc_netdev_dummy */
+	free_netdev(prGlueInfo->dummy_dev);
 #if CFG_SUPPORT_RX_NAPI_THREADED
 	kalNapiThreadedUninit(prGlueInfo);
 #endif /* CFG_SUPPORT_RX_NAPI_THREADED */
@@ -15178,9 +15183,9 @@ static inline void kalNapiDelayTimerStart(struct GLUE_INFO *pr,
 
 static void kalNapiDelayTimerInit(struct GLUE_INFO *pr)
 {
-	hrtimer_init(&pr->rNapiDelayTimer, CLOCK_MONOTONIC,
+	/* rodin(4-6): 6.18 删 hrtimer_init+function=，改 hrtimer_setup */
+	hrtimer_setup(&pr->rNapiDelayTimer, kalNapiDelayTimeout, CLOCK_MONOTONIC,
 			HRTIMER_MODE_REL);
-	pr->rNapiDelayTimer.function = kalNapiDelayTimeout;
 	pr->ulNapiDelayFlag = 0;
 }
 
@@ -15859,7 +15864,7 @@ void kalTpeTimeoutHandler(unsigned long ulData)
 #endif
 {
 #if KERNEL_VERSION(4, 15, 0) <= LINUX_VERSION_CODE
-	struct GLUE_INFO *prGlueInfo = from_timer(prGlueInfo, timer, rTpeTimer);
+	struct GLUE_INFO *prGlueInfo = timer_container_of(prGlueInfo, timer, rTpeTimer);
 #else
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *)ulData;
 #endif
@@ -15929,7 +15934,7 @@ void kalTpeUninit(struct GLUE_INFO *prGlueInfo)
 	if (!prAdapter->rWifiVar.ucTpEnhanceEnable)
 		return;
 
-	del_timer_sync(&(prGlueInfo->rTpeTimer));
+	timer_delete_sync(&(prGlueInfo->rTpeTimer));
 }
 
 int kalTpeProcess(struct GLUE_INFO *prGlueInfo,
@@ -16022,7 +16027,7 @@ int kalTpeProcess(struct GLUE_INFO *prGlueInfo,
 			prGlueInfo->u4TpeTimeout) {
 			/* Timeout already, flush out directly. */
 			if (timer_pending(&prGlueInfo->rTpeTimer))
-				del_timer(&prGlueInfo->rTpeTimer);
+				timer_delete(&prGlueInfo->rTpeTimer);
 			kalTpeFlush(prGlueInfo);
 			kalSetEvent(prGlueInfo);
 		} else {
@@ -16119,7 +16124,7 @@ void kalTxDirectTimerCheckSkbQ(unsigned long data)
 {
 #if KERNEL_VERSION(4, 15, 0) <= LINUX_VERSION_CODE
 	struct GLUE_INFO *prGlueInfo =
-		from_timer(prGlueInfo, timer, rTxDirectSkbTimer);
+		timer_container_of(prGlueInfo, timer, rTxDirectSkbTimer);
 #else
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *)data;
 #endif
@@ -16138,7 +16143,7 @@ void kalTxDirectTimerCheckHifQ(unsigned long data)
 
 #if KERNEL_VERSION(4, 15, 0) <= LINUX_VERSION_CODE
 	struct GLUE_INFO *prGlueInfo =
-		from_timer(prGlueInfo, timer, rTxDirectHifTimer);
+		timer_container_of(prGlueInfo, timer, rTxDirectHifTimer);
 #else
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *)data;
 #endif
@@ -17741,8 +17746,8 @@ void kalTxDirectUninit(struct GLUE_INFO *prGlueInfo)
 
 	if (HAL_IS_TX_DIRECT(prAdapter)) {
 		if (prAdapter->fgTxDirectInited) {
-			del_timer_sync(&prGlueInfo->rTxDirectSkbTimer);
-			del_timer_sync(&prGlueInfo->rTxDirectHifTimer);
+			timer_delete_sync(&prGlueInfo->rTxDirectSkbTimer);
+			timer_delete_sync(&prGlueInfo->rTxDirectHifTimer);
 			kalTxDirectClearSkbQ(prGlueInfo);
 		}
 	}

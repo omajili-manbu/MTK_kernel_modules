@@ -74,7 +74,7 @@
 extern const struct of_device_id apconninfra_of_ids[];
 
 static int mtk_conninfra_probe(struct platform_device *pdev);
-static int mtk_conninfra_remove(struct platform_device *pdev);
+static void mtk_conninfra_remove(struct platform_device *pdev);
 
 static struct platform_driver mtk_conninfra_dev_drv = {
 	.probe = mtk_conninfra_probe,
@@ -674,14 +674,14 @@ int mtk_conninfra_probe(struct platform_device *pdev)
 	return 0;
 }
 
-int mtk_conninfra_remove(struct platform_device *pdev)
+void mtk_conninfra_remove(struct platform_device *pdev)
 {
 	atomic_set(&g_connv2_hw_init_done, 0);
 	consys_hw_deinit();
 	if (g_drv_dev)
 		g_drv_dev = NULL;
 
-	return 0;
+	return;
 }
 
 

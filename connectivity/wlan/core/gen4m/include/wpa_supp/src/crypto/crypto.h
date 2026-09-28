@@ -93,13 +93,13 @@ int sha384_vector(size_t num_elem, const u8 *addr[], const size_t *len,
 		  u8 *mac);
 
 /**
- * des_encrypt - Encrypt one block with DES
+ * wpa_des_encrypt - Encrypt one block with DES
  * @clear: 8 octets (in)
  * @key: 7 octets (in) (no parity bits included)
  * @cypher: 8 octets (out)
  * Returns: 0 on success, -1 on failure
  */
-int des_encrypt(const u8 *clear, const u8 *key, u8 *cypher);
+int wpa_des_encrypt(const u8 *clear, const u8 *key, u8 *cypher);
 
 /**
  * aes_encrypt_init - Initialize AES for encryption
@@ -110,13 +110,13 @@ int des_encrypt(const u8 *clear, const u8 *key, u8 *cypher);
 void *aes_encrypt_init(const u8 *key, size_t len);
 
 /**
- * aes_encrypt - Encrypt one AES block
+ * wpa_aes_encrypt - Encrypt one AES block
  * @ctx: Context pointer from aes_encrypt_init()
  * @plain: Plaintext data to be encrypted (16 bytes)
  * @crypt: Buffer for the encrypted data (16 bytes)
  * Returns: 0 on success, -1 on failure
  */
-int aes_encrypt(void *ctx, const u8 *plain, u8 *crypt);
+int wpa_aes_encrypt(void *ctx, const u8 *plain, u8 *crypt);
 
 /**
  * aes_encrypt_deinit - Deinitialize AES encryption
@@ -133,13 +133,13 @@ void aes_encrypt_deinit(void *ctx);
 void *aes_decrypt_init(const u8 *key, size_t len);
 
 /**
- * aes_decrypt - Decrypt one AES block
+ * wpa_aes_decrypt - Decrypt one AES block
  * @ctx: Context pointer from aes_encrypt_init()
  * @crypt: Encrypted data (16 bytes)
  * @plain: Buffer for the decrypted data (16 bytes)
  * Returns: 0 on success, -1 on failure
  */
-int aes_decrypt(void *ctx, const u8 *crypt, u8 *plain);
+int wpa_aes_decrypt(void *ctx, const u8 *crypt, u8 *plain);
 
 /**
  * aes_decrypt_deinit - Deinitialize AES decryption

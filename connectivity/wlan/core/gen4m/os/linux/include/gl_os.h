@@ -1033,7 +1033,8 @@ struct GLUE_INFO {
 #endif /* CFG_SUPPORT_TX_FREE_SKB_WORK */
 
 #if CFG_SUPPORT_RX_GRO
-	struct net_device dummy_dev;
+	/* rodin(4-6): 6.18 删 init_dummy_netdev（内嵌初始化不可得），改 alloc_netdev_dummy 指针 */
+	struct net_device *dummy_dev;
 	struct napi_struct napi;
 	OS_SYSTIME tmGROFlushTimeout;
 	spinlock_t napi_spinlock;

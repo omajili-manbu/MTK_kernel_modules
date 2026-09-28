@@ -8,6 +8,16 @@ KO_CODE_PATH := $(if $(filter /%,$(src)),,$(srctree)/)$(src)
 ifeq ($(SEGMENT), SP)
     # build ko by connac version
     include $(KO_CODE_PATH)/Kbuild.$(subst wlan_drv_gen4m_,,$(MODULE_NAME))
+else ifeq ($(CONFIG_MTK_COMBO_WIFI),y)
+    # rodin(builtin 4-6): =y 内建按设备 6899 出货形态（CONNAC2X2_SOC7_0/axi）选 Kbuild.6899；
+    # Kbuild.main 的 obj 行挂在 CONFIG_MTK_WIFI_ONLY 上（未定义时该 ifeq 恒真走空展开，
+    # vendor =m 靠上层 KBUILD_OPTIONS 传值），此处以 COMBO_WIFI 兜底让 obj-y 生效
+    CONFIG_MTK_WIFI_ONLY := $(CONFIG_MTK_COMBO_WIFI)
+    # rodin(builtin 4-6): CONNSYS_DEDICATED_LOG_PATH 同 WIFI_ONLY 坑——设备 blob 含
+    # fw_log_wifi_inf_*（真值 y）；Kbuild.main:1857 无条件加宏但 :1915/:2988 判变量，
+    # 漏设会丢 gl_fw_log.o（fw_log_wifi_inf_init 等三个 undefined 的根因）
+    CONFIG_MTK_CONNSYS_DEDICATED_LOG_PATH := y
+    include $(KO_CODE_PATH)/Kbuild.6899
 else
     include $(KO_CODE_PATH)/Kbuild.main
 endif

@@ -71,7 +71,7 @@ static void wfsys_lock_release_trace(void)
 	uint64_t end_time_nsec;
 	uint64_t timeout;
 
-	del_timer_sync(&wfsys_lock_timer);
+	timer_delete_sync(&wfsys_lock_timer);
 
 	end_time_sec = local_clock();
 	end_time_nsec = do_div(end_time_sec, NSEC_PER_SEC) / MSEC_PER_SEC;

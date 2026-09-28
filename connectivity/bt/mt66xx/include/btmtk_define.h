@@ -20,7 +20,8 @@
 #include <linux/spinlock.h>
 #include <linux/kallsyms.h>
 #include <linux/device.h>
-#include <asm/unaligned.h>
+/* rodin(4-6): 6.18 起 unaligned.h 移至 linux/ */
+#include <linux/unaligned.h>
 
 /* Define for proce node */
 #include <linux/proc_fs.h>

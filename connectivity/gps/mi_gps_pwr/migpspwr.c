@@ -27,7 +27,7 @@
 /* GPS driver num */
 #define DRV_TYPE_GPS 2
 /* GPS lowbattery level */
-enum conn_pwr_low_battery_level battery_level;
+enum conn_pwr_low_battery_level static /* rodin(4-6): 与同族拷贝单镜像撞名，仅文件内用 */ battery_level;
 #define PERMISSION_MSK (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH) /*664*/
 /******************************************************************************/
 

@@ -63,6 +63,8 @@ obj-y += $(MODULE_NAME).o
 else
 $(info [fm_drv:Kbuild] $(MODULE_NAME) is kernel module)
 obj-m += $(MODULE_NAME).o
+# rodin(builtin 4-6): =y 内建走真实语义门（不翻 WLAN_DRV_BUILD_IN，同 conninfra）
+obj-$(CONFIG_MTK_COMBO) += $(MODULE_NAME).o
 endif
 
 ###############################################################################

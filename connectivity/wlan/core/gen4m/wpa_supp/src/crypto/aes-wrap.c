@@ -58,7 +58,7 @@ int aes_wrap(const u8 *kek, size_t kek_len, int n, const u8 *plain, u8 *cipher)
 		for (i = 1; i <= n; i++) {
 			os_memcpy(b, a, 8);
 			os_memcpy(b + 8, r, 8);
-			aes_encrypt(ctx, b, b);
+			wpa_aes_encrypt(ctx, b, b);
 			os_memcpy(a, b, 8);
 			t = n * j + i;
 			a[7] ^= t;

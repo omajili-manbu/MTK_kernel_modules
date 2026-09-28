@@ -1661,13 +1661,13 @@ static signed int mt_fm_probe(struct platform_device *pdev)
 	return ret;
 }
 
-static signed int mt_fm_remove(struct platform_device *pdev)
+static void mt_fm_remove(struct platform_device *pdev)
 {
 	WCN_DBG(FM_NTC | MAIN, "%s\n", __func__);
 
 	fm_mod_destroy(g_fm);
 	g_fm = NULL;
-	return 0;
+	return;
 }
 
 static struct platform_device *pr_fm_device;

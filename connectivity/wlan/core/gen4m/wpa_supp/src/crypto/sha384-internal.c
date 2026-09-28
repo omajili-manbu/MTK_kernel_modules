@@ -30,7 +30,7 @@ sha384_vector(size_t num_elem, const u8 *addr[], const size_t *len, u8 *mac) {
 	struct sha384_state ctx = {0};
 	size_t i;
 
-	sha384_init(&ctx);
+	wpa_sha384_init(&ctx);
 	for (i = 0; i < num_elem; i++)
 		if (sha384_process(&ctx, addr[i], len[i]))
 			return -1;
@@ -52,7 +52,7 @@ sha384_vector(size_t num_elem, const u8 *addr[], const size_t *len, u8 *mac) {
  *   @return CRYPT_OK if successful
  */
 void
-sha384_init(struct sha384_state *md) {
+wpa_sha384_init(struct sha384_state *md) {
 	md->curlen = 0;
 	md->length = 0;
 	md->state[0] = CONST64(0xcbbb9d5dc1059ed8);

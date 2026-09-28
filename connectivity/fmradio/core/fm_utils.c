@@ -407,7 +407,7 @@ static signed int fm_timer_init(struct fm_timer *thiz, void (*timeout) (unsigned
 
 	if (thiz->flag & FM_TIMER_FLAG_ACTIVATED) {
 		thiz->flag &= ~FM_TIMER_FLAG_ACTIVATED;
-		del_timer(timerlist);
+		timer_delete(timerlist);
 	}
 
 	thiz->flag = flag;
@@ -474,7 +474,7 @@ static signed int fm_timer_stop(struct fm_timer *thiz)
 	if (thiz->flag & FM_TIMER_FLAG_INITED
 		&& thiz->flag & FM_TIMER_FLAG_ACTIVATED) {
 		thiz->flag &= ~FM_TIMER_FLAG_ACTIVATED;
-		del_timer(timerlist);
+		timer_delete(timerlist);
 	}
 
 	FM_UNLOCK(thiz->lock);
@@ -547,7 +547,7 @@ signed int fm_timer_put(struct fm_timer *thiz)
 	}
 
 	thiz->flag = 0;
-	del_timer(thiz->priv);
+	timer_delete(thiz->priv);
 	thiz->ref--;
 	if (thiz->ref == 0) {
 		fm_spin_lock_put(thiz->lock);
