@@ -1,0 +1,1 @@
+savedcmd_drivers/../MTK_kernel_modules-rodin/met_drv_v3/met_api/met_ipi_api/built-in.a := rm -f drivers/../MTK_kernel_modules-rodin/met_drv_v3/met_api/met_ipi_api/built-in.a;  printf "drivers/../MTK_kernel_modules-rodin/met_drv_v3/met_api/met_ipi_api/%s " met_ipi_api.o | xargs llvm-ar cDPrST drivers/../MTK_kernel_modules-rodin/met_drv_v3/met_api/met_ipi_api/built-in.a

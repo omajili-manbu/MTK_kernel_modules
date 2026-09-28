@@ -7,4 +7,8 @@ include $(src)/Kbuild
 override src := $(ORIGIN_SRC)
 
 obj-$(CONFIG_MTK_MET) := met_gpueb_api.o
+met_gpueb_api-y := met_gpueb_api.o
+# rodin: 批4-5 =y 内建補 -I（=m 时这两条由 common/Kbuild 提供）
+ccflags-y += -I$(MET_ROOT_DIR)/met_api
+ccflags-y += -I$(MET_ROOT_DIR)/common # rodin: 批4-5 =y 内建（default/ 布局的 -y 是 stub 路径）
 endif

@@ -1,0 +1,22 @@
+!<thin>
+//                                              306       `
+met_gpu_api/met_gpu_api.o/
+met_gpu_adv_api/met_gpu_adv_api.o/
+met_vcore_api/met_vcore_api.o/
+met_backlight_api/met_backlight_api.o/
+met_emi_api/met_emi_api.o/
+met_sspm_api/met_sspm_api.o/
+met_mcupm_api/met_mcupm_api.o/
+met_gpueb_api/met_gpueb_api.o/
+met_ipi_api/met_ipi_api.o/
+met_scmi_api/met_scmi_api.o/
+/0              0           0     0     644     6464      `
+/27             0           0     0     644     6496      `
+/62             0           0     0     644     6480      `
+/93             0           0     0     644     6520      `
+/132            0           0     0     644     6464      `
+/159            0           0     0     644     6472      `
+/188            0           0     0     644     6480      `
+/219            0           0     0     644     6480      `
+/250            0           0     0     644     6464      `
+/277            0           0     0     644     6472      `
