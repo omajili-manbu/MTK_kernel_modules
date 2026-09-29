@@ -52,8 +52,12 @@ EXPORT_SYMBOL_GPL(c2ps_notify_anchor_fp);
 struct proc_dir_entry *c2ps_ioctl_root;
 EXPORT_SYMBOL(c2ps_ioctl_root);
 
-int debug_log_on = 0;
-module_param(debug_log_on, int, 0644);
+/* rodin 6.9：原名 debug_log_on 与 c2ps/common/src/c2ps_common.c 的同名全局撞名
+ * （c2ps 与 c2ps_ioctl 在 6.6 是独立 .ko）⇒ 改 C 符号名。
+ * 用 module_param_named() **保留 sysfs 参数名不变**（/sys/module/c2ps_ioctl/parameters/
+ * debug_log_on），避免改变用户可见接口。 */
+int c2ps_ioctl_debug_log_on = 0;
+module_param_named(debug_log_on, c2ps_ioctl_debug_log_on, int, 0644);
 
 static u64 perfctl_copy_from_user(void *pvTo,
 	const void __user *pvFrom, u64 ulBytes)

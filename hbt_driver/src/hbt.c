@@ -189,7 +189,7 @@ static long hbt_compat_ioctl(struct hbt_compat_ioctl __user *argp)
 		return -EFAULT;
 
 	f = fdget(args.fd);
-	if (!f.file)
+	if (fd_empty(f))
 		return -EBADF;
 
 	/*
@@ -208,13 +208,13 @@ static long hbt_compat_ioctl(struct hbt_compat_ioctl __user *argp)
 		set_32bit(true);
 	}
 
-	retval = security_file_ioctl(f.file, args.cmd, args.arg);
+	retval = security_file_ioctl(fd_file(f), args.cmd, args.arg);
 	if (retval)
 		goto out;
 
 	retval = -ENOIOCTLCMD;
-	if (f.file->f_op->compat_ioctl)
-		retval = f.file->f_op->compat_ioctl(f.file, args.cmd, args.arg);
+	if (fd_file(f)->f_op->compat_ioctl)
+		retval = fd_file(f)->f_op->compat_ioctl(fd_file(f), args.cmd, args.arg);
 
 out:
 	set_32bit(false);
@@ -342,24 +342,14 @@ efault:
 #endif
 }
 
-static struct fd my_fdget_pos(unsigned int fd)
-{
-	struct fd f = fdget(fd);
-
-	if (f.file && (f.file->f_mode & FMODE_ATOMIC_POS)) {
-		if (file_count(f.file) > 1) {
-			f.flags |= FDPUT_POS_UNLOCK;
-			mutex_lock(&f.file->f_pos_lock);
-		}
-	}
-	return f;
-}
-static void my_fdput_pos(struct fd fd)
-{
-	if (fd.flags & FDPUT_POS_UNLOCK)
-		mutex_unlock(&fd.file->f_pos_lock);
-	fdput(fd);
-}
+/*
+ * rodin 6.9：6.18 把 struct fd 变成单个 unsigned long word（include/linux/file.h:38-48），
+ * f.file / f.flags 不再可访问（改 fd_file(f) / fd_empty(f) / .word）。原 my_fdget_pos()/
+ * my_fdput_pos() 是 6.6 时代对内核逻辑的手工复刻；6.18 已把同一段逻辑提升为公共 API
+ * fdget_pos()/fdput_pos()（include/linux/file.h:75-81）⇒ 整段删除，调用点改用内核版。
+ * 这是"用官方等价 API 替换复刻代码"，不是降级（语义逐位一致，且 FDPUT_POS_UNLOCK
+ * 的处理由内核统一负责）。
+ */
 
 static long
 hbt_compat_getdents64(struct hbt_compat_getdents64 __user *argp)
@@ -372,8 +362,8 @@ hbt_compat_getdents64(struct hbt_compat_getdents64 __user *argp)
 	if (copy_from_user(&args, argp, sizeof(args)))
 		return -EFAULT;
 
-	f = my_fdget_pos(args.fd);
-	if (!f.file)
+	f = fdget_pos(args.fd);
+	if (fd_empty(f))
 		return -EBADF;
 
 	set_32bit(true);
@@ -382,7 +372,7 @@ hbt_compat_getdents64(struct hbt_compat_getdents64 __user *argp)
 	buf.count = args.count;
 	buf.current_dir = (struct linux_dirent64 __user *)args.dirp;
 
-	error = iterate_dir(f.file, &buf.ctx);
+	error = iterate_dir(fd_file(f), &buf.ctx);
 	if (error >= 0)
 		error = buf.error;
 	if (buf.prev_reclen) {
@@ -397,7 +387,7 @@ hbt_compat_getdents64(struct hbt_compat_getdents64 __user *argp)
 	}
 
 	set_32bit(false);
-	my_fdput_pos(f);
+	fdput_pos(f);
 	return error;
 }
 
@@ -411,8 +401,8 @@ static long hbt_compat_lseek(struct hbt_compat_lseek __user *argp)
 	if (copy_from_user(&args, argp, sizeof(args)))
 		return -EFAULT;
 
-	f = my_fdget_pos(args.fd);
-	if (!f.file)
+	f = fdget_pos(args.fd);
+	if (fd_empty(f))
 		return -EBADF;
 
 	retval = -EINVAL;
@@ -420,7 +410,7 @@ static long hbt_compat_lseek(struct hbt_compat_lseek __user *argp)
 		goto out_putf;
 
 	set_32bit(true);
-	offset = vfs_llseek(f.file, args.offset, args.whence);
+	offset = vfs_llseek(fd_file(f), args.offset, args.whence);
 	set_32bit(false);
 
 	retval = (int)offset;
@@ -432,7 +422,7 @@ static long hbt_compat_lseek(struct hbt_compat_lseek __user *argp)
 	}
 
 out_putf:
-	my_fdput_pos(f);
+	fdput_pos(f);
 	return retval;
 }
 

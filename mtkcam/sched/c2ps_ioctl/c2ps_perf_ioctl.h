@@ -22,7 +22,7 @@
 #define MAX_CPU_NUM CONFIG_MAX_NR_CPUS
 #define MAX_CRITICAL_TASKS 20
 
-extern int debug_log_on;
+extern int c2ps_ioctl_debug_log_on;
 
 struct C2PS_INIT_PARAM {
 	u32 camfps;
@@ -123,8 +123,8 @@ struct C2PS_ANCHOR_POINT_PARAM {
 
 #define C2PS_LOGD(fmt, ...)                                                 \
 	do {                                                                    \
-		if (unlikely(debug_log_on)) {                                       \
-			switch (debug_log_on) {                                         \
+		if (unlikely(c2ps_ioctl_debug_log_on)) {                                       \
+			switch (c2ps_ioctl_debug_log_on) {                                         \
 			case 1:                                                         \
 				pr_debug("[C2PS_IOCTL]: %s " fmt, __func__, ##__VA_ARGS__); \
 				break;                                                      \

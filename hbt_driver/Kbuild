@@ -35,7 +35,9 @@
 
 MTK_TOP = $(srctree)/drivers/misc/mediatek/
 
-ifeq ($(CONFIG_MTK_HBT),m)
+# rodin 6.9：原 `ifeq ($(CONFIG_MTK_HBT),m)` 在 =y 时不成立 ⇒ -DCONFIG_MTK_HBT
+# 静默消失 ⇒ 源码里各 #ifdef CONFIG_MTK_HBT 分支被剪掉（编译期无感知）。
+ifneq ($(filter y m,$(CONFIG_MTK_HBT)),)
 ccflags-y += -DCONFIG_MTK_HBT
 subdir-ccflags-y += -DCONFIG_MTK_HBT
 endif
@@ -44,8 +46,14 @@ ccflags-y += \
 	     -I$(srctree)/include/ \
 	     -I$(MTK_TOP)/include/ \
 
-obj-m += hbt.o
+# rodin 6.9：原为无条件 `obj-m += hbt.o`（设备构建层保证该件必编）。
+# 内建 =y 需要语义门，否则 obj-m 让 kbuild 仍按模块处理 ⇒ 不进 vmlinux。
+# 设备 hbt.ko 真实发货（hbt_driver/src/hbt.c 507 行真身；同树 hbt_driver_cus/
+# 是 79 行残桩且被其 Android.mk 的反向守卫排除），故 CONFIG_MTK_HBT=y 时内建。
+obj-$(CONFIG_MTK_HBT) += hbt.o
 hbt-y += src/hbt.o
 
-KO_CODE_PATH := $(if $(filter /%,$(src)),,$(srctree)/)$(src)
-REL_PREBUILT_O_PATH := $(shell bash $(srctree)/scripts/get_rel_path.sh $(KO_CODE_PATH) $(obj))
+# rodin 6.9：原 KO_CODE_PATH/REL_PREBUILT_O_PATH 依赖 scripts/get_rel_path.sh ——
+# 本树无该脚本（MTK Android 构建层专有），$(shell) 每次解析都往 stderr 打
+# "No such file or directory"，且两个变量全树无消费者（hbt 真实现是 src/hbt.c，
+# 不是 .o_shipped）⇒ 删掉这两行死代码。
