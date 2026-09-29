@@ -21,7 +21,16 @@ void gpu_send_enable_ipi(unsigned int type, unsigned int enable)
 	int ret = 0;
 	struct gpu_pm_ipi_cmds ipi_cmd;
 	if (!ipi_register_flag) {
-		pr_info("ipi_register_flag fail");
+#ifdef CONFIG_MALI_SCMI_ENABLE
+		/* rodin b52: built-in init may have outrun the SCMI tinysys
+		 * chain; retry once before giving up. The original code
+		 * fell through and called scmi with a NULL _tinfo. */
+		MTK_GPU_Power_model_init();
+#endif
+		if (!ipi_register_flag) {
+			pr_info("ipi_register_flag fail");
+			return;
+		}
 	}
 
 	ipi_cmd.cmd = type;
