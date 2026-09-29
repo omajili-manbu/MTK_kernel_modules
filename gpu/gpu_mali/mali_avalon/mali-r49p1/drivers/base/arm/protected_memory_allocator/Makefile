@@ -84,6 +84,6 @@ ccflags-y += -I$(DEVICE_MODULES_PATH)/drivers/misc/mediatek/trusted_mem/public \
 endif
 
 ccflags-y += -DCONFIG_MALI_MTK_GPU_PROTECTED_MEMORY_SUPPORT
-obj-m += mali_prot_alloc_$(MTK_PLATFORM_VERSION)_r49.o
+obj-$(CONFIG_MALI_PROTECTED_MEMORY_ALLOCATOR) += mali_prot_alloc_$(MTK_PLATFORM_VERSION)_r49.o	# rodin 4-8: 原 obj-m 写死门（配方 64 第 7 例）
 mali_prot_alloc_$(MTK_PLATFORM_VERSION)_r49-y := protected_memory_allocator.o
 endif

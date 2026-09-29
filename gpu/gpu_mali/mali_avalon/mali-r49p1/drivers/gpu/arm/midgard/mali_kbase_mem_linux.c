@@ -24,6 +24,7 @@
  */
 
 #include <linux/compat.h>
+#include <hw_access/mali_kbase_hw_access_regmap_legacy.h>	/* rodin 4-8: 6.18 头瘦身，MCU_SUBSYSTEM_BASE/IPA_CONTROL_BASE 等基址宏 */
 #include <linux/kernel.h>
 #include <linux/bug.h>
 #include <linux/mm.h>

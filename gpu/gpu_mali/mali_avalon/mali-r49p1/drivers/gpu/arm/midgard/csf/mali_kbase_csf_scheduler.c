@@ -7610,8 +7610,8 @@ int kbase_csf_scheduler_init(struct kbase_device *kbdev)
 #endif /* !CONFIG_MALI_NO_MALI */
 
 	spin_lock_init(&scheduler->gpu_metrics_lock);
-	hrtimer_init(&scheduler->gpu_metrics_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_SOFT);
-	scheduler->gpu_metrics_timer.function = gpu_metrics_timer_callback;
+	hrtimer_setup(&scheduler->gpu_metrics_timer, gpu_metrics_timer_callback,
+	CLOCK_MONOTONIC, HRTIMER_MODE_REL_SOFT);	/* rodin 4-8: 6.18 hrtimer_setup 一次完成 init+回调 */
 #endif /* CONFIG_MALI_TRACE_POWER_GPU_WORK_PERIOD */
 
 	atomic_set(&scheduler->gpu_idle_timer_enabled, false);
@@ -7651,13 +7651,13 @@ int kbase_csf_scheduler_early_init(struct kbase_device *kbdev)
 	KBASE_KTRACE_ADD(kbdev, SCHED_SUSPENDED, NULL, scheduler->state);
 	scheduler->csg_scheduling_period_ms = CSF_SCHEDULER_TIME_TICK_MS;
 	scheduler_doorbell_init(kbdev);
-	hrtimer_init(&scheduler->tick_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-	scheduler->tick_timer.function = tick_timer_callback;
+	hrtimer_setup(&scheduler->tick_timer, tick_timer_callback,
+	CLOCK_MONOTONIC, HRTIMER_MODE_REL);	/* rodin 4-8: 6.18 hrtimer_setup 一次完成 init+回调 */
 
 #if IS_ENABLED(CONFIG_MALI_MTK_ADAPTIVE_POWER_POLICY)
 	scheduler->apo_support = ged_gpu_apo_support();
-	hrtimer_init(&scheduler->apo_idle_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-	scheduler->apo_idle_timer.function = apo_idle_timer_callback;
+	hrtimer_setup(&scheduler->apo_idle_timer, apo_idle_timer_callback,
+	CLOCK_MONOTONIC, HRTIMER_MODE_REL);	/* rodin 4-8: 6.18 hrtimer_setup 一次完成 init+回调 */
 #endif /* CONFIG_MALI_MTK_ADAPTIVE_POWER_POLICY */
 
 #if !IS_ENABLED(CONFIG_MALI_MTK_USE_WORKQUEUE_FOR_CSF_SCHEDULE)
@@ -7686,8 +7686,8 @@ int kbase_csf_scheduler_early_init(struct kbase_device *kbdev)
 	kbdev->api_sync_restore_always_on = false;
 	kbdev->api_sync_timeout_ms = API_SYNC_DEFAULT_TIMEOUT_MS;
 
-	hrtimer_init(&kbdev->api_sync_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-	kbdev->api_sync_timer.function = api_sync_timer_callback;
+	hrtimer_setup(&kbdev->api_sync_timer, api_sync_timer_callback,
+	CLOCK_MONOTONIC, HRTIMER_MODE_REL);	/* rodin 4-8: 6.18 hrtimer_setup 一次完成 init+回调 */
 #endif
 
 	return kbase_csf_tiler_heap_reclaim_mgr_init(kbdev);

@@ -3,6 +3,7 @@
  * Copyright (c) 2023 MediaTek Inc.
  */
 #include "mali_kbase.h"
+#include <linux/of.h>	/* rodin 4-8: 6.18 头瘦身，of_* / struct of_device_id */
 #include <linux/scmi_protocol.h>
 #include <tinysys-scmi.h>
 #include "mtk_gpu_power_model_sspm_ipi.h"

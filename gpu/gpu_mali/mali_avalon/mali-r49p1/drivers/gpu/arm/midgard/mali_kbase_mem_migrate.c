@@ -24,6 +24,30 @@
  */
 #include <linux/migrate.h>
 
+/*
+ * rodin 4-8 RODIN 降级说明（本文件唯一的适配降级点，全批仅此一处）：
+ *
+ * 1) 6.18 内核已**删除**页迁移的驱动侧注册机制：
+ *    include/linux/page-flags.h 不再有 PAGE_MAPPING_MOVABLE/__SetPageMovable/
+ *    __ClearPageMovable（全树 grep 零命中），mm/migrate.c 的 set_movable_ops()
+ *    只接受 PGTY_offline / PGTY_zsmalloc（mm/migrate.c:61-82），页面识别走
+ *    PageOffline/PageZsmalloc 固定标志 —— 驱动自定义 movable_operations
+ *    在本内核上**无法注册**，完整移植必须改内核核心（新增 page type + page flag），
+ *    超出本批范围。
+ *
+ * 2) 设备真值同为此特性关闭（blob 实证）：vendor_dlkm 的 mali_kbase_mt6899_r49.ko 里
+ *    kbase_page_migration_enabled 位于 **.bss**（初值 0 = 显式关闭），即设备构建面
+ *    定义了 __ANDROID_COMMON_KERNEL__（未定义时为 -1 且落 .data）。值为 0 时
+ *    kbase_mem_migrate_init() 走 else 分支、永不抬升 page_migration_static_key
+ *    ⇒ kbase_is_page_migration_enabled() 恒 false ⇒ kbase_alloc_page_metadata()
+ *    在第 60 行即 return false，本文件所有 __Set/__ClearPageMovable 点**均不可达**。
+ *
+ * 3) 因此本文件的降级形态 = 「不执行页标记/清除调用」（与设备实际运行状态一致），
+ *    其余面（module_param / static key / 元数据 slab / free_pages_workq /
+ *    隔离-迁移-回退状态机）**全部保留**，并在 init 里显式把特性钉死为关闭。
+ *    这不是 stub：没有假的实现或假标记，特性本身在本内核上不可实现。
+ */
+
 #include <mali_kbase.h>
 #include <mali_kbase_mem_migrate.h>
 #include <mmu/mali_kbase_mmu.h>
@@ -32,11 +56,15 @@
 static DEFINE_STATIC_KEY_FALSE(page_migration_static_key);
 
 /* -1 as default, 0 when manually set as off and 1 when manually set as on */
-#ifdef __ANDROID_COMMON_KERNEL__
+#if (KERNEL_VERSION(6, 14, 0) <= LINUX_VERSION_CODE)
+/* rodin 4-8: 6.14+ 内核已无页标记机制 ⇒ 默认显式关闭（与设备 blob 的 .bss 初值 0 一致）。
+ * 见本文件头部 RODIN 降级说明。 */
+static int kbase_page_migration_enabled;
+#elif defined(__ANDROID_COMMON_KERNEL__)
 static int kbase_page_migration_enabled;
 #else
 static int kbase_page_migration_enabled = -1;
-#endif /* __ANDROID_COMMON_KERNEL__ */
+#endif /* (KERNEL_VERSION(6, 14, 0) <= LINUX_VERSION_CODE) */
 module_param(kbase_page_migration_enabled, int, 0444);
 MODULE_PARM_DESC(kbase_page_migration_enabled,
 		 "Explicitly enable or disable page migration with 1 or 0 respectively.");
@@ -79,7 +107,8 @@ bool kbase_alloc_page_metadata(struct kbase_device *kbdev, struct page *p, dma_a
 
 	lock_page(p);
 #if (KERNEL_VERSION(6, 0, 0) <= LINUX_VERSION_CODE)
-	__SetPageMovable(p, &movable_ops);
+	/* rodin 4-8: 6.18 无 __SetPageMovable，且页面在本内核无法标记为可迁移
+	 * （见文件头 RODIN 降级说明）；设备运行状态同样是「不标记」。 */
 	page_md->status = PAGE_MOVABLE_SET(page_md->status);
 #else
 	/* In some corner cases, the driver may attempt to allocate memory pages
@@ -154,7 +183,7 @@ static void kbase_free_pages_worker(struct work_struct *work)
 		lock_page(p);
 		page_md = kbase_page_private(p);
 		if (page_md && IS_PAGE_MOVABLE(page_md->status)) {
-			__ClearPageMovable(p);
+	/* rodin 4-8: 6.18 无 __ClearPageMovable（见文件头 RODIN 降级说明）*/
 			page_md->status = PAGE_MOVABLE_CLEAR(page_md->status);
 		}
 		unlock_page(p);
@@ -223,12 +252,13 @@ static int kbasep_migrate_page_pt_mapped(struct page *old_page, struct page *new
 
 	if (ret == 0) {
 		dma_unmap_page(kbdev->dev, old_dma_addr, PAGE_SIZE, DMA_BIDIRECTIONAL);
-		__ClearPageMovable(old_page);
+	/* rodin 4-8: 6.18 无 __ClearPageMovable（见文件头 RODIN 降级说明）*/
 		ClearPagePrivate(old_page);
 		put_page(old_page);
 
 #if (KERNEL_VERSION(6, 0, 0) <= LINUX_VERSION_CODE)
-		__SetPageMovable(new_page, &movable_ops);
+	/* rodin 4-8: 6.18 无 __SetPageMovable，且页面在本内核无法标记为可迁移
+	 * （见文件头 RODIN 降级说明）；设备运行状态同样是「不标记」。 */
 		page_md->status = PAGE_MOVABLE_SET(page_md->status);
 #else
 		if (kbdev->mem_migrate.inode->i_mapping) {
@@ -300,12 +330,13 @@ static int kbasep_migrate_page_allocated_mapped(struct page *old_page, struct pa
 
 		/* Clear PG_movable from the old page and release reference. */
 		ClearPagePrivate(old_page);
-		__ClearPageMovable(old_page);
+	/* rodin 4-8: 6.18 无 __ClearPageMovable（见文件头 RODIN 降级说明）*/
 		put_page(old_page);
 
 		/* Set PG_movable to the new page. */
 #if (KERNEL_VERSION(6, 0, 0) <= LINUX_VERSION_CODE)
-		__SetPageMovable(new_page, &movable_ops);
+	/* rodin 4-8: 6.18 无 __SetPageMovable，且页面在本内核无法标记为可迁移
+	 * （见文件头 RODIN 降级说明）；设备运行状态同样是「不标记」。 */
 		page_md->status = PAGE_MOVABLE_SET(page_md->status);
 #else
 		if (kctx->kbdev->mem_migrate.inode->i_mapping) {
@@ -382,7 +413,7 @@ static bool kbase_page_isolate(struct page *p, isolate_mode_t mode)
 		break;
 	case NOT_MOVABLE:
 		/* Opportunistically clear the movable property for these pages */
-		__ClearPageMovable(p);
+	/* rodin 4-8: 6.18 无 __ClearPageMovable（见文件头 RODIN 降级说明）*/
 		page_md->status = PAGE_MOVABLE_CLEAR(page_md->status);
 		break;
 	default:
@@ -505,7 +536,7 @@ static int kbase_page_migrate(struct page *new_page, struct page *old_page, enum
 		struct kbase_mem_migrate *mem_migrate = &kbdev->mem_migrate;
 
 		kbase_free_page_metadata(kbdev, old_page, NULL);
-		__ClearPageMovable(old_page);
+	/* rodin 4-8: 6.18 无 __ClearPageMovable（见文件头 RODIN 降级说明）*/
 		put_page(old_page);
 
 		/* Just free new page to avoid lock contention. */
@@ -528,7 +559,7 @@ static int kbase_page_migrate(struct page *new_page, struct page *old_page, enum
 	 * expect.
 	 */
 	if (err < 0 && err != -EAGAIN) {
-		__ClearPageMovable(old_page);
+	/* rodin 4-8: 6.18 无 __ClearPageMovable（见文件头 RODIN 降级说明）*/
 		page_md->status = PAGE_MOVABLE_CLEAR(page_md->status);
 	}
 
@@ -605,7 +636,7 @@ static void kbase_page_putback(struct page *p)
 	 */
 	if (status_mem_pool || status_free_isolated_in_progress ||
 	    status_free_pt_isolated_in_progress) {
-		__ClearPageMovable(p);
+	/* rodin 4-8: 6.18 无 __ClearPageMovable（见文件头 RODIN 降级说明）*/
 		page_md->status = PAGE_MOVABLE_CLEAR(page_md->status);
 		if (!WARN_ON_ONCE(!kbdev)) {
 			struct kbase_mem_migrate *mem_migrate = &kbdev->mem_migrate;
@@ -617,7 +648,7 @@ static void kbase_page_putback(struct page *p)
 }
 
 #if (KERNEL_VERSION(6, 0, 0) <= LINUX_VERSION_CODE)
-static const struct movable_operations movable_ops = {
+static const struct movable_operations movable_ops __maybe_unused = {
 	.isolate_page = kbase_page_isolate,
 	.migrate_page = kbase_page_migrate,
 	.putback_page = kbase_page_putback,
@@ -659,6 +690,15 @@ void kbase_mem_migrate_set_address_space_ops(struct kbase_device *kbdev, struct 
 void kbase_mem_migrate_init(struct kbase_device *kbdev)
 {
 	struct kbase_mem_migrate *mem_migrate = &kbdev->mem_migrate;
+
+#if (KERNEL_VERSION(6, 14, 0) <= LINUX_VERSION_CODE)
+	/* rodin 4-8: 6.14+ 内核侧无页标记机制，本特性不可实现 ⇒ 无条件关闭（含 insmod 参数）。
+	 * 见本文件头部 RODIN 降级说明；设备运行状态同为此特性关闭。 */
+	if (kbase_page_migration_enabled != 0)
+		dev_warn(kbdev->dev,
+			 "page migration is not supported on kernel >= 6.14, forcing disabled\n");
+	kbase_page_migration_enabled = 0;
+#endif
 
 	/* Page migration support compiled in, either explicitly or
 	 * by default, so the default behaviour is to follow the choice

@@ -625,7 +625,9 @@ static inline const char *__format_trace_str(char type, int pid, const char *nam
 }
 #endif /* __TRACE_MALI_GET_VSRTING__ */
 
-TRACE_EVENT(tracing_mark_write,
+/* rodin 4-8: 改名避与 vmlinux 的 GED __tracepoint_tracing_mark_write 撞名（同符
+ * 号两份 TRACE_EVENT ⇒ 链接重定义）。风格照 4-4 先例（_camsys/_imgsys/_imgsensor）。*/
+TRACE_EVENT(tracing_mark_write_mali,
 	TP_PROTO(char type, int pid, const char *name, int value),
 	TP_ARGS(type, pid, name, value),
 	TP_STRUCT__entry(
@@ -648,10 +650,10 @@ TRACE_EVENT(tracing_mark_write,
 	TP_printk("%s", __format_trace_str(__entry->type, __entry->pid, __get_str(name), __entry->value, __get_str(buf)))
 );
 
-#define MALI_TRACE_BEGIN(name) trace_tracing_mark_write('B', current->tgid, name, 0)
-#define MALI_TRACE_END() trace_tracing_mark_write('E', current->tgid, "", 0)
-#define MALI_TRACE_VALUE(name, value) trace_tracing_mark_write('C', current->tgid, name, value)
-#define MALI_TRACE_VALUE_TARGET(name, value, pid) trace_tracing_mark_write('C', pid, name, value)
+#define MALI_TRACE_BEGIN(name) trace_tracing_mark_write_mali('B', current->tgid, name, 0)
+#define MALI_TRACE_END() trace_tracing_mark_write_mali('E', current->tgid, "", 0)
+#define MALI_TRACE_VALUE(name, value) trace_tracing_mark_write_mali('C', current->tgid, name, value)
+#define MALI_TRACE_VALUE_TARGET(name, value, pid) trace_tracing_mark_write_mali('C', pid, name, value)
 #else
 #define MALI_TRACE_BEGIN(...)
 #define MALI_TRACE_END()

@@ -1043,14 +1043,14 @@ static int mtk_protected_memory_allocator_probe(struct platform_device *pdev)
 }
 #endif /* CONFIG_MALI_MTK_GPU_PROTECTED_MEMORY_SUPPORT */
 
-static int protected_memory_allocator_remove(struct platform_device *pdev)
+static void protected_memory_allocator_remove(struct platform_device *pdev)
 {
 	struct protected_memory_allocator_device *pma_dev = platform_get_drvdata(pdev);
 	struct simple_pma_device *epma_dev;
 	struct device *dev;
 
 	if (!pma_dev)
-		return -EINVAL;
+		return;	/* rodin 4-8: 6.13+ platform_driver.remove 返回 void */
 
 	epma_dev = container_of(pma_dev, struct simple_pma_device, pma_dev);
 	dev = epma_dev->dev;
@@ -1066,7 +1066,7 @@ static int protected_memory_allocator_remove(struct platform_device *pdev)
 
 	dev_info(&pdev->dev, "Protected memory allocator removed successfully\n");
 
-	return 0;
+	return;	/* rodin 4-8: 6.13+ platform_driver.remove 返回 void */
 }
 
 static const struct of_device_id protected_memory_allocator_dt_ids[] = {
@@ -1090,7 +1090,7 @@ static struct platform_driver
 
 module_platform_driver(protected_memory_allocator_driver);
 
-MODULE_IMPORT_NS(DMA_BUF);
+MODULE_IMPORT_NS("DMA_BUF");	/* rodin 4-8: 6.18 需字符串字面量（配方 63）*/
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("ARM Ltd.");
 MODULE_VERSION("1.0");

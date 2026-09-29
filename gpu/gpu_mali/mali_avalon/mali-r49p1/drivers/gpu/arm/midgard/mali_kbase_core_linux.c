@@ -802,7 +802,8 @@ static int kbase_open(struct inode *inode, struct file *filp)
 	}
 
 	filp->private_data = kfile;
-	filp->f_mode |= FMODE_UNSIGNED_OFFSET;
+	/* rodin 4-8: 6.18 无 FMODE_UNSIGNED_OFFSET（上游搬到 fop_flags）；语义等价表达
+	 * 已静态写进 kbase_fops.fop_flags = FOP_UNSIGNED_OFFSET，见下方定义。 */
 
 	return 0;
 
@@ -2474,6 +2475,10 @@ static unsigned long kbase_get_unmapped_area(struct file *const filp, const unsi
 
 static const struct file_operations kbase_fops = {
 	.owner = THIS_MODULE,
+	/* rodin 4-8: 原为 kbase_open() 里 filp->f_mode |= FMODE_UNSIGNED_OFFSET（6.18 已无）；
+	 * 该位现在是 per-fops 的 fop_flags（上游 641bb4394f40）。dev/mali0 的
+	 * 偏移按无符号解释，与设备 6.6 行为一致。 */
+	.fop_flags = FOP_UNSIGNED_OFFSET,
 	.open = kbase_open,
 	.release = kbase_release,
 	.read = kbase_read,
@@ -6368,18 +6373,18 @@ void kbase_sysfs_term(struct kbase_device *kbdev)
 	put_device(kbdev->dev);
 }
 
-static int kbase_platform_device_remove(struct platform_device *pdev)
+static void kbase_platform_device_remove(struct platform_device *pdev)
 {
 	struct kbase_device *kbdev = to_kbase_device(&pdev->dev);
 
 	if (!kbdev)
-		return -ENODEV;
+		return;	/* rodin 4-8: 6.13+ platform_driver.remove 返回 void */
 
 	kbase_device_term(kbdev);
 	dev_set_drvdata(kbdev->dev, NULL);
 	kbase_device_free(kbdev);
 
-	return 0;
+	return;	/* rodin 4-8: 6.13+ platform_driver.remove 返回 void */
 }
 
 void kbase_backend_devfreq_term(struct kbase_device *kbdev)

@@ -20,6 +20,7 @@
  */
 
 #include <mali_kbase.h>
+#include <hw_access/mali_kbase_hw_access_regmap_legacy.h>	/* rodin 4-8: 6.18 头瘦身，MCU_SUBSYSTEM_BASE/IPA_CONTROL_BASE 等基址宏 */
 #include <gpu/mali_kbase_gpu_fault.h>
 #include <mali_kbase_reset_gpu.h>
 #include "mali_kbase_csf.h"

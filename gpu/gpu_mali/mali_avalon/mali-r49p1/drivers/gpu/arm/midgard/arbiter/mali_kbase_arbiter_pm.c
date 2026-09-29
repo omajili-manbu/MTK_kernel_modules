@@ -289,8 +289,8 @@ int kbase_arbiter_pm_early_init(struct kbase_device *kbdev)
 	INIT_WORK(&arb_vm_state->vm_resume_work, kbase_arbiter_pm_resume_wq);
 	arb_vm_state->vm_arb_starting = false;
 	atomic_set(&kbdev->pm.gpu_users_waiting, 0);
-	hrtimer_init(&arb_vm_state->vm_request_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-	arb_vm_state->vm_request_timer.function = request_timer_callback;
+	hrtimer_setup(&arb_vm_state->vm_request_timer, request_timer_callback,
+	CLOCK_MONOTONIC, HRTIMER_MODE_REL);	/* rodin 4-8: 6.18 hrtimer_setup 一次完成 init+回调 */
 	kbdev->pm.arb_vm_state = arb_vm_state;
 
 	err = kbase_arbif_init(kbdev);

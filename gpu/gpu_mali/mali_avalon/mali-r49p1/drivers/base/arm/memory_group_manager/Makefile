@@ -24,7 +24,7 @@ ccflags-y = -I$(KO_CODE_PATH)/../../../gpu/arm/midgard/include -I$(DEVICE_MODULE
 subdir-ccflags-y += $(ccflags-y)
 
 ifeq ($(CONFIG_MALI_MEMORY_GROUP_MANAGER), y)
-obj-m += mali_mgm_$(MTK_PLATFORM_VERSION)_r49.o
+obj-$(CONFIG_MALI_MEMORY_GROUP_MANAGER) += mali_mgm_$(MTK_PLATFORM_VERSION)_r49.o	# rodin 4-8: 原 obj-m 写死门（配方 64 第 6 例）
 mali_mgm_$(MTK_PLATFORM_VERSION)_r49-y := memory_group_manager.o
 
 ccflags-y += -DCONFIG_MALI_MTK_PREVENT_PRINTK_TOO_MUCH

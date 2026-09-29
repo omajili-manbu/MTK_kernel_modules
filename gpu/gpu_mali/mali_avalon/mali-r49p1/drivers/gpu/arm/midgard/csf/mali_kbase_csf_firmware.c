@@ -20,6 +20,7 @@
  */
 
 #include "mali_kbase.h"
+#include <linux/of.h>	/* rodin 4-8: 6.18 头瘦身，of_* / struct of_device_id */
 #include "mali_kbase_csf_firmware_cfg.h"
 #include "mali_kbase_csf_firmware_log.h"
 #include "mali_kbase_csf_firmware_core_dump.h"

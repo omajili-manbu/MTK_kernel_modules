@@ -16,8 +16,12 @@ $(info *GPU [mtk-Kbuild] KO_CODE_PATH = $(KO_CODE_PATH))
 $(info *GPU [mtk-Kbuild] DEVICE_MODULES_PATH = $(DEVICE_MODULES_PATH))
 
 # build support for a ARM Mali Midgard GPU
+# rodin 4-8: 原为「:= $(CONFIG_MTK_GPU_SUPPORT)」+ 无条件「:= m」（=m 写死门，配方 64 第 8 例）。
+# in-tree 内建（=y）时那行会让 mali_kbase 静默退化成 .ko（永不进 built-in.a）。
+# 真值改由 .config 的 CONFIG_MALI_MIDGARD 提供；符号缺席时才退回旧 OOT 语义。
+ifeq ($(CONFIG_MALI_MIDGARD),)
 CONFIG_MALI_MIDGARD := $(CONFIG_MTK_GPU_SUPPORT)
-CONFIG_MALI_MIDGARD := m
+endif
 
 # use mtk platform
 CONFIG_MALI_PLATFORM_NAME := $(MTK_PLATFORM)

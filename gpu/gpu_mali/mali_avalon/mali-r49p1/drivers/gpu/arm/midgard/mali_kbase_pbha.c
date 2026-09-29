@@ -21,6 +21,7 @@
 
 #include "mali_kbase_pbha.h"
 
+#include <linux/of.h>	/* rodin 4-8: 6.18 头瘦身，of_* / struct of_device_id */
 #include <device/mali_kbase_device.h>
 #include <mali_kbase.h>
 

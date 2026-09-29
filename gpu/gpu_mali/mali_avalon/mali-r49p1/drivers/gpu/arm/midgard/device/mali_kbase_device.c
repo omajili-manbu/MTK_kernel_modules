@@ -317,10 +317,9 @@ int kbase_device_misc_init(struct kbase_device *const kbdev)
 
 
 	/* There is no limit for Mali, so set to max. */
+	/* rodin 4-8: 6.18 起 dma_set_max_seg_size() 返回 void，不再有返回值可判 */
 	if (kbdev->dev->dma_parms)
-		err = dma_set_max_seg_size(kbdev->dev, UINT_MAX);
-	if (err)
-		goto dma_set_mask_failed;
+		dma_set_max_seg_size(kbdev->dev, UINT_MAX);
 
 	kbdev->nr_hw_address_spaces = (s8)kbdev->gpu_props.num_address_spaces;
 

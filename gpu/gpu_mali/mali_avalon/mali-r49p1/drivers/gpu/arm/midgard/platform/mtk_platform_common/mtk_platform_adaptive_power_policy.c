@@ -3,6 +3,7 @@
  * Copyright (c) 2023 MediaTek Inc.
  */
 #include <mali_kbase.h>
+#include <linux/of.h>	/* rodin 4-8: 6.18 头瘦身，of_* / struct of_device_id */
 #include <mali_kbase_defs.h>
 #include <platform/mtk_platform_common.h>
 #include <platform/mtk_platform_common/mtk_platform_adaptive_power_policy.h>
