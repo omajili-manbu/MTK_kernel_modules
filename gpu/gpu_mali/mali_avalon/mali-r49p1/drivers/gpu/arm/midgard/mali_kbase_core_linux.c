@@ -20,6 +20,7 @@
  */
 
 #include <mali_kbase.h>
+#include <linux/vseq.h>
 #include <mali_kbase_config_defaults.h>
 #include <hw_access/mali_kbase_hw_access_regmap.h>
 #include <mali_kbase_gator.h>
@@ -6722,7 +6723,7 @@ static struct platform_driver kbase_platform_driver = {
 };
 
 #if (KERNEL_VERSION(5, 3, 0) > LINUX_VERSION_CODE) && IS_ENABLED(CONFIG_OF)
-module_platform_driver(kbase_platform_driver);
+vseq_module_platform_driver(kbase_platform_driver);
 #else
 static int __init kbase_driver_init(void)
 {
@@ -6756,7 +6757,7 @@ static void __exit kbase_driver_exit(void)
 #endif
 }
 
-module_init(kbase_driver_init);
+vseq_module_init(kbase_driver_init);
 module_exit(kbase_driver_exit);
 #endif
 MODULE_LICENSE("GPL");

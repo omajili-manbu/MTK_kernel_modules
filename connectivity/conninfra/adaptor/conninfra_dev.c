@@ -4,6 +4,7 @@
  */
 
 #include <linux/platform_device.h>
+#include <linux/vseq.h>
 #include <linux/cdev.h>
 #include <linux/module.h>
 #include <linux/types.h>
@@ -699,7 +700,7 @@ static void conninfra_dev_deinit(void)
 	pr_info("ConnInfra: ALPS platform init (%d)\n", iret);
 }
 
-module_init(conninfra_dev_init);
+vseq_module_init(conninfra_dev_init);
 module_exit(conninfra_dev_deinit);
 
 MODULE_LICENSE("GPL");

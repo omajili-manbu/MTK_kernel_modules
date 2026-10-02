@@ -4,6 +4,7 @@
  */
 
 #include <linux/module.h>
+#include <linux/vseq.h>
 #include "met_api.h"
 
 #ifdef MET_MCUPM
@@ -54,7 +55,7 @@ static void __exit met_api_exit(void)
 #endif /* MET_MCUPM */
 }
 
-module_init(met_api_init);
+vseq_module_init(met_api_init);
 module_exit(met_api_exit);
 
 MODULE_AUTHOR("DT_DM5");

@@ -6,6 +6,7 @@
 */
 
 #include <linux/kernel.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 #include <linux/errno.h>
 #include <linux/mm.h>
@@ -775,7 +776,7 @@ static void __exit wifi_page_pool_exit(void)
 	platform_driver_unregister(&wifi_page_pool_drv);
 }
 
-module_init(wifi_page_pool_init);
+vseq_module_init(wifi_page_pool_init);
 module_exit(wifi_page_pool_exit);
 
 MODULE_LICENSE("GPL");

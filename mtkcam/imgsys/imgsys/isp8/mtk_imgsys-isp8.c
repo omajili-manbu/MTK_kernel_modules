@@ -5,6 +5,7 @@
  */
 
 #include <linux/module.h>
+#include <linux/vseq.h>
 #include <linux/of_device.h>
 #include <linux/pm.h>
 #include <linux/platform_device.h>
@@ -53,7 +54,7 @@ static struct platform_driver mtk_imgsys_driver = {
 	}
 };
 
-module_platform_driver(mtk_imgsys_driver);
+vseq_module_platform_driver(mtk_imgsys_driver);
 
 MODULE_AUTHOR("Marvin Lin <Marvin.Lin@mediatek.com>");
 MODULE_LICENSE("GPL v2");

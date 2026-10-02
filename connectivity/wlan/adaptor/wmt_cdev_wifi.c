@@ -13,6 +13,7 @@
 */
 
 #include <linux/init.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/kernel.h>
@@ -1102,7 +1103,7 @@ EXPORT_SYMBOL(mtk_wcn_wmt_wifi_exit);
 
 #else
 
-module_init(WIFI_init);
+vseq_module_init(WIFI_init);
 module_exit(WIFI_exit);
 
 #endif

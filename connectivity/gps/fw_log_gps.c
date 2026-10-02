@@ -8,6 +8,7 @@
 *******************************************************************************/
 #ifdef CONFIG_MTK_CONNSYS_DEDICATED_LOG_PATH
 #include <linux/kernel.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/types.h>
@@ -406,7 +407,7 @@ void mtk_gps_fw_log_exit(void)
 
 /*****************************************************************************/
 #if 0
-module_init(gps_emi_mod_init);
+vseq_module_init(gps_emi_mod_init);
 module_exit(gps_emi_mod_exit);
 #endif
 /*****************************************************************************/

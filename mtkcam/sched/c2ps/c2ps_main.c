@@ -4,6 +4,7 @@
  */
 
 #include <linux/kernel.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/kthread.h>
@@ -817,7 +818,7 @@ static void __exit c2ps_exit(void)
 	C2PS_LOGD("- \n");
 }
 
-module_init(c2ps_init);
+vseq_module_init(c2ps_init);
 module_exit(c2ps_exit);
 
 MODULE_LICENSE("GPL");

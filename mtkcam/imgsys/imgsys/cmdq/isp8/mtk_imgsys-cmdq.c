@@ -7,6 +7,7 @@
  */
 
 #include <linux/platform_device.h>
+#include <linux/vseq.h>
 #include <linux/of_device.h>
 #include <linux/soc/mediatek/mtk-cmdq-ext.h>
 //#include <linux/pm_opp.h>
@@ -389,7 +390,7 @@ static struct platform_driver mtk_imgsys_cmdq_driver = {
 	},
 };
 
-module_platform_driver(mtk_imgsys_cmdq_driver);
+vseq_module_platform_driver(mtk_imgsys_cmdq_driver);
 
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("Mediatek imgsys cmdq driver");

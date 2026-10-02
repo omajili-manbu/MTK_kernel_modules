@@ -4,6 +4,7 @@
  */
 
 #include <linux/init.h>
+#include <linux/vseq.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/version.h>
@@ -3117,7 +3118,7 @@ static void __exit camera_pda_exit(void)
 /****************************************************************************
  *
  ****************************************************************************/
-module_init(camera_pda_init);
+vseq_module_init(camera_pda_init);
 module_exit(camera_pda_exit);
 MODULE_DESCRIPTION("Camera PDA driver");
 MODULE_AUTHOR("MM6SW3");

@@ -7,6 +7,7 @@
  */
 
 #include <linux/clk.h>
+#include <linux/vseq.h>
 #include <linux/dma-mapping.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
@@ -2301,7 +2302,7 @@ static struct platform_driver mtk_mae_driver = {
 	}
 };
 
-module_platform_driver(mtk_mae_driver);
+vseq_module_platform_driver(mtk_mae_driver);
 MODULE_AUTHOR("Ming-Hsuan Chaing <ming-hsuan.chiang@mediatek.com>");
 MODULE_LICENSE("GPL v2");
 MODULE_IMPORT_NS("DMA_BUF");

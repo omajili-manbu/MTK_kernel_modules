@@ -6,6 +6,7 @@
  *
  */
 #include <linux/platform_device.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 #include <linux/device.h>
 #include <linux/of_address.h>
@@ -278,7 +279,7 @@ static struct platform_driver mtk_ipesys_me_driver = {
 	}
 };
 
-module_platform_driver(mtk_ipesys_me_driver);
+vseq_module_platform_driver(mtk_ipesys_me_driver);
 
 MODULE_AUTHOR("Marvin Lin <marvin.lin@mediatek.com>");
 MODULE_LICENSE("GPL v2");

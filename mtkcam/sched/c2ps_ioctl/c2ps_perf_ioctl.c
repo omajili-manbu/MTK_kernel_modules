@@ -3,6 +3,7 @@
  * Copyright (c) 2023 MediaTek Inc.
  */
 #include "c2ps_perf_ioctl.h"
+#include <linux/vseq.h>
 
 #define TAG "C2PS_PERF_IOCTL"
 
@@ -311,7 +312,7 @@ static int __init init_c2ps_perf_ioctl(void)
 	return 0;
 }
 
-module_init(init_c2ps_perf_ioctl);
+vseq_module_init(init_c2ps_perf_ioctl);
 module_exit(exit_c2ps_perf_ioctl);
 
 MODULE_LICENSE("GPL");

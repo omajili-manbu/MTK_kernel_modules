@@ -4,6 +4,7 @@
  * Copyright (c) 2019 - 2023 Xiaomi Inc.
  */
 #include <conn_power_throttling.h>
+#include <linux/vseq.h>
 #include <linux/cdev.h>
 #include <linux/dcache.h>
 #include <linux/delay.h>
@@ -106,7 +107,7 @@ static void gps_pwr_exit(void)
   unregister_chrdev(major, "mi_gps_pwr");
 }
 
-module_init(gps_pwr_init);
+vseq_module_init(gps_pwr_init);
 module_exit(gps_pwr_exit);
 /*****************************************************************************/
 MODULE_AUTHOR("chenyucheng@xiaomi.com");

@@ -12,6 +12,7 @@
  */
 
 #include <linux/kernel.h>
+#include <linux/vseq.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
@@ -1774,7 +1775,7 @@ void mtk_wcn_fm_exit(void)
 }
 EXPORT_SYMBOL(mtk_wcn_fm_exit);
 #else
-module_init(mt_fm_init);
+vseq_module_init(mt_fm_init);
 module_exit(mt_fm_exit);
 #endif
 EXPORT_SYMBOL(g_dbg_level);

@@ -20,6 +20,7 @@
  */
 
 #include <linux/version.h>
+#include <linux/vseq.h>
 #include <linux/of.h>
 #include <linux/of_reserved_mem.h>
 #include <linux/of_device.h>
@@ -1088,7 +1089,7 @@ static struct platform_driver
 							      protected_memory_allocator_dt_ids),
 					      } };
 
-module_platform_driver(protected_memory_allocator_driver);
+vseq_module_platform_driver(protected_memory_allocator_driver);
 
 MODULE_IMPORT_NS("DMA_BUF");	/* rodin 4-8: 6.18 需字符串字面量（配方 63）*/
 MODULE_LICENSE("GPL");

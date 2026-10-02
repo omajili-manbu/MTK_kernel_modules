@@ -21,6 +21,7 @@
  *******************************************************************************
  */
 #include "gl_os.h"
+#include <linux/vseq.h>
 #include "debug.h"
 #include "wlan_lib.h"
 #include "gl_wext.h"
@@ -10134,11 +10135,11 @@ EXPORT_SYMBOL(mtk_wcn_wlan_gen4_exit);
 
 #elif ((MTK_WCN_HIF_SDIO == 0) && (CFG_BUILT_IN_DRIVER == 1))
 
-device_initcall(initWlan);
+vseq_device_initcall(initWlan);
 
 #else
 
-module_init(initWlan);
+vseq_module_init(initWlan);
 module_exit(exitWlan);
 
 #endif

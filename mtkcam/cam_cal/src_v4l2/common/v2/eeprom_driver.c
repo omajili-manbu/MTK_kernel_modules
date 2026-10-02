@@ -7,6 +7,7 @@
 #define pr_fmt(fmt) PFX "[%s] " fmt, __func__
 
 #include <linux/cdev.h>
+#include <linux/vseq.h>
 #include <linux/fs.h>
 #include <linux/i2c.h>
 #include <linux/init.h>
@@ -477,7 +478,7 @@ static struct i2c_driver eeprom_i2c_init = {
 	.remove     = eeprom_remove,
 };
 
-module_i2c_driver(eeprom_i2c_init);
+vseq_module_i2c_driver(eeprom_i2c_init);
 
 MODULE_DESCRIPTION("camera eeprom driver");
 MODULE_AUTHOR("Mediatek");

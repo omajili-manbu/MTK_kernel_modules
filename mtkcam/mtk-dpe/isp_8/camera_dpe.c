@@ -11,6 +11,7 @@
  **************************************************************/
 
 #include <linux/cdev.h>
+#include <linux/vseq.h>
 #include <linux/device.h>
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
@@ -10227,7 +10228,7 @@ static void logPrint(struct work_struct *data)
 /******************************************************************************
  *
  ******************************************************************************/
-module_init(DPE_Init);
+vseq_module_init(DPE_Init);
 module_exit(DPE_Exit);
 MODULE_DESCRIPTION("Camera DPE driver");
 MODULE_AUTHOR("MM3SW2");

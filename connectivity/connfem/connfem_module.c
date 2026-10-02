@@ -4,6 +4,7 @@
  */
 
 #include <linux/kernel.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 #include <linux/errno.h>
 #include <linux/of.h>
@@ -1063,7 +1064,7 @@ static void __exit connfem_mod_exit(void)
 	platform_driver_unregister(&connfem_plat_drv);
 }
 
-module_init(connfem_mod_init);
+vseq_module_init(connfem_mod_init);
 module_exit(connfem_mod_exit);
 
 MODULE_LICENSE("GPL");

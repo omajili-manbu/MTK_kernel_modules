@@ -8,6 +8,7 @@
 * Dependency
 *******************************************************************************/
 #include <linux/kernel.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/types.h>
@@ -734,7 +735,7 @@ void mtk_gps2scp_test_exit(void)
 }
 #endif
 /*****************************************************************************/
-module_init(mtk_gps2scp_init);
+vseq_module_init(mtk_gps2scp_init);
 module_exit(mtk_gps2scp_exit);
 /*****************************************************************************/
 MODULE_AUTHOR("Tianfang li <Tianfang.Li@mediatek.com>");

@@ -2,6 +2,7 @@
 // Copyright (c) 2019 MediaTek Inc.
 
 #include <linux/i2c.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 #include <linux/pm_runtime.h>
 #include <media/v4l2-ctrls.h>
@@ -1896,7 +1897,7 @@ static void __exit adaptor_drv_exit(void)
 	mtk_i3c_i2c_driver_unregister(&imgsensor_ixc_driver);
 }
 
-late_initcall(adaptor_drv_init);
+vseq_late_initcall(adaptor_drv_init);
 module_exit(adaptor_drv_exit);
 
 MODULE_LICENSE("GPL v2");

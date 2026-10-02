@@ -4,6 +4,7 @@
  */
 
 #include <linux/of.h>
+#include <linux/vseq.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
 #include <linux/input.h>
@@ -4166,7 +4167,7 @@ void __exit main_driver_exit(void)
 	main_exit();
 }
 
-module_init(main_driver_init);
+vseq_module_init(main_driver_init);
 module_exit(main_driver_exit);
 
 /**

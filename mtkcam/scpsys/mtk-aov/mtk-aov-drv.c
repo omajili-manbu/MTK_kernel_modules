@@ -6,6 +6,7 @@
  */
 
 #include <linux/of.h>
+#include <linux/vseq.h>
 #include <linux/of_platform.h>
 #include <linux/platform_device.h>	/* rodin 4-7: 6.18 of_platform.h 不再传递 platform_device.h */
 #include <linux/module.h>
@@ -693,7 +694,7 @@ static struct platform_driver mtk_aov_driver = {
 	},
 };
 
-module_platform_driver(mtk_aov_driver);
+vseq_module_platform_driver(mtk_aov_driver);
 
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("Mediatek AOV process driver");

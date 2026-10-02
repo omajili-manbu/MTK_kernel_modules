@@ -8,6 +8,7 @@
 * Dependency
 *******************************************************************************/
 #include <linux/kernel.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/types.h>
@@ -254,7 +255,7 @@ void mtk_gps_pwr_exit(void)
 	return gps_pwr_exit();
 }
 /*****************************************************************************/
-module_init(mtk_gps_pwr_init);
+vseq_module_init(mtk_gps_pwr_init);
 module_exit(mtk_gps_pwr_exit);
 /*****************************************************************************/
 MODULE_AUTHOR("Tianfang li <Tianfang.Li@mediatek.com>");

@@ -4,6 +4,7 @@
  */
 
 #include <linux/types.h>
+#include <linux/vseq.h>
 #include <linux/stddef.h>
 #include <linux/vmalloc.h>
 #include <linux/spinlock.h>
@@ -668,6 +669,6 @@ static void __exit egnreq_exit(void)
 
 }
 
-module_init(egnreq_init);
+vseq_module_init(egnreq_init);
 module_exit(egnreq_exit);
 #endif

@@ -7,6 +7,7 @@
  */
 
 #include <linux/module.h>
+#include <linux/vseq.h>
 #include <linux/platform_device.h>
 
 #include <linux/soc/mediatek/mtk-cmdq-ext.h>
@@ -3687,6 +3688,6 @@ static struct platform_driver mtk_mae_isp8_drv = {
 	},
 };
 
-module_platform_driver(mtk_mae_isp8_drv);
+vseq_module_platform_driver(mtk_mae_isp8_drv);
 MODULE_AUTHOR("Ming-Hsuan Chaing <ming-hsuan.chiang@mediatek.com>");
 MODULE_LICENSE("GPL v2");

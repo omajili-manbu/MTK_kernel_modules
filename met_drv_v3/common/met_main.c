@@ -4,6 +4,7 @@
  */
 
 #include <linux/init.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/hrtimer.h>
@@ -290,7 +291,7 @@ static void __exit met_drv_exit(void)
 
 	_MET_SYMBOL_PUT(mt_get_chip_id);
 }
-module_init(met_drv_init);
+vseq_module_init(met_drv_init);
 module_exit(met_drv_exit);
 
 MODULE_AUTHOR("DT_DM5");

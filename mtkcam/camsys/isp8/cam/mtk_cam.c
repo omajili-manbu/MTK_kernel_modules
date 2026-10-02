@@ -3,6 +3,7 @@
 // Copyright (c) 2019 MediaTek Inc.
 
 #include <linux/component.h>
+#include <linux/vseq.h>
 #include <linux/freezer.h>
 #include <linux/iopoll.h>
 #include <linux/module.h>
@@ -5405,7 +5406,7 @@ bool mtk_cam_ctx_is_raw_sink_changed(struct mtk_cam_ctx *ctx,
 	return changed;
 }
 
-module_init(mtk_cam_init);
+vseq_module_init(mtk_cam_init);
 module_exit(mtk_cam_exit);
 
 MODULE_DESCRIPTION("Camera ISP driver");

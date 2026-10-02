@@ -20,6 +20,7 @@
  */
 
 #include <linux/fs.h>
+#include <linux/vseq.h>
 #include <linux/of.h>
 #include <linux/slab.h>
 #include <linux/platform_device.h>
@@ -1448,7 +1449,7 @@ static struct platform_driver
 						.suppress_bind_attrs = true,
 					} };
 
-module_platform_driver(memory_group_manager_driver);
+vseq_module_platform_driver(memory_group_manager_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("ARM Ltd.");

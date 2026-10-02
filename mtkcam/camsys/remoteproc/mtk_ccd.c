@@ -3,6 +3,7 @@
 // Copyright (c) 2018 MediaTek Inc.
 
 #include <linux/compat.h>
+#include <linux/vseq.h>
 #include <linux/dma-mapping.h>
 #include <linux/module.h>
 #include <linux/of_platform.h>
@@ -509,7 +510,7 @@ static void __exit ccd_exit(void)
 	platform_driver_unregister(&mtk_ccd_driver);
 }
 
-late_initcall(ccd_init);
+vseq_late_initcall(ccd_init);
 module_exit(ccd_exit);
 
 MODULE_LICENSE("GPL v2");

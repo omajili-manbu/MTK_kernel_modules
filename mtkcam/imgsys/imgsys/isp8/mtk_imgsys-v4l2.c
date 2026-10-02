@@ -7,6 +7,7 @@
  */
 
 #include <linux/hashtable.h>
+#include <linux/vseq.h>
 #include <linux/platform_device.h>
 #include <linux/module.h>
 #include <linux/of_device.h>
@@ -3887,7 +3888,7 @@ static struct platform_driver mtk_imgsys_driver = {
 	}
 };
 
-module_platform_driver(mtk_imgsys_driver);
+vseq_module_platform_driver(mtk_imgsys_driver);
 #endif
 MODULE_AUTHOR("Frederic Chen <frederic.chen@mediatek.com>");
 MODULE_LICENSE("GPL v2");

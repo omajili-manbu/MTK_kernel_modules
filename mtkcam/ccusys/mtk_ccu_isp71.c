@@ -3,6 +3,7 @@
 // Copyright (c) 2021 MediaTek Inc.
 
 #include <linux/arm-smccc.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/platform_device.h>
@@ -1556,7 +1557,7 @@ static void __exit ccu_exit(void)
 #endif
 }
 
-module_init(ccu_init);
+vseq_module_init(ccu_init);
 module_exit(ccu_exit);
 
 MODULE_IMPORT_NS("DMA_BUF");

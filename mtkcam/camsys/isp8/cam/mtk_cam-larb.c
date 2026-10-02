@@ -6,6 +6,7 @@
  */
 
 #include <linux/of_address.h>
+#include <linux/vseq.h>
 #include <linux/of_platform.h>
 #include <linux/pm_runtime.h>
 #include <soc/mediatek/smi.h>
@@ -111,7 +112,7 @@ struct platform_driver mtk_cam_larb_driver = {
 		.of_match_table = of_match_ptr(mtk_cam_larb_match),
 	},
 };
-//module_platform_driver(mtk_cam_larb_driver);
+//vseq_module_platform_driver(mtk_cam_larb_driver);
 
 //MODULE_LICENSE("GPL v2");
 //MODULE_DESCRIPTION("Mediatek video camera isp larb driver");

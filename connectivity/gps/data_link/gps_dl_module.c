@@ -4,6 +4,7 @@
  */
 
 #include <linux/init.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 
 #include "gps_dl_config.h"
@@ -47,7 +48,7 @@ void mtk_wcn_gpsdl_drv_exit(void)
 EXPORT_SYMBOL(mtk_wcn_gpsdl_drv_exit);
 
 #else
-module_init(gps_dl_mod_init);
+vseq_module_init(gps_dl_mod_init);
 module_exit(gps_dl_mod_exit);
 
 #endif

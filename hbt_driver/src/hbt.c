@@ -4,6 +4,7 @@
  */
 
 #include <linux/version.h>
+#include <linux/vseq.h>
 #include <linux/module.h>
 #include <linux/fs.h>
 #include <linux/file.h>
@@ -491,7 +492,7 @@ static void __exit hbt_exit(void)
 	misc_deregister(&hbt_device), misc_deregister(&hbt_device2);
 }
 
-module_init(hbt_init);
+vseq_module_init(hbt_init);
 module_exit(hbt_exit);
 
 MODULE_LICENSE("GPL");

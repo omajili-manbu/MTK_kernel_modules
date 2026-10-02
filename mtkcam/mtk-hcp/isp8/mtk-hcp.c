@@ -4,6 +4,7 @@
  */
 
 #include <asm/cacheflush.h>
+#include <linux/vseq.h>
 #include <linux/cdev.h>
 #include <linux/dma-mapping.h>
 #include <linux/file.h>
@@ -2699,7 +2700,7 @@ static struct platform_driver mtk_hcp_driver = {
 	},
 };
 
-module_platform_driver(mtk_hcp_driver);
+vseq_module_platform_driver(mtk_hcp_driver);
 
 MODULE_IMPORT_NS("DMA_BUF");
 MODULE_LICENSE("GPL v2");

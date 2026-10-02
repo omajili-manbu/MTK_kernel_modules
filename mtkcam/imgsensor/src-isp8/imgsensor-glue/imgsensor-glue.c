@@ -2,6 +2,7 @@
 // Copyright (c) 2021 MediaTek Inc.
 
 #include <linux/platform_device.h>
+#include <linux/vseq.h>
 #include <linux/of_device.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -74,7 +75,7 @@ static void __exit external_sensor_drv_exit(void)
 	pr_info("%s ++\n", __func__);
 }
 
-late_initcall(external_sensor_drv_init);
+vseq_late_initcall(external_sensor_drv_init);
 module_exit(external_sensor_drv_exit);
 
 MODULE_LICENSE("GPL v2");
