@@ -4750,7 +4750,7 @@ static int mtk_cam_vcore_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct mtk_cam_vcore_device *drvdata;
 	struct device *alloc_dev;
-	int i, ret, clks;
+	int i, clks;
 
 	dev_info(dev, "%s++\n", __func__);
 
