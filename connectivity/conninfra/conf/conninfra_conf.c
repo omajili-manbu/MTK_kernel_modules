@@ -14,6 +14,8 @@
 #define pr_fmt(fmt) KBUILD_MODNAME "@(%s:%d) " fmt, __func__, __LINE__
 
 #include <linux/firmware.h>
+#include <linux/workqueue.h>
+#include <linux/jiffies.h>
 #include "conninfra_conf.h"
 
 /*******************************************************************************
@@ -556,6 +558,32 @@ static int platform_release_firmware(osal_firmware **ppPatch)
 	return 0;
 }
 
+/*
+ * Built-in probe runs before first-stage init mounts /vendor, so the
+ * first conninfra_conf_init() typically misses conninfra.cfg (-ENOENT).
+ * Re-run it from a work item until the file shows up (A-51).
+ */
+#define CONFINFRA_CONF_RETRY_MAX 30
+static void conninfra_conf_retry_fn(struct work_struct *work);
+static DECLARE_DELAYED_WORK(conninfra_conf_retry_dwork,
+			   conninfra_conf_retry_fn);
+static int conninfra_conf_retry_cnt;
+
+static void conninfra_conf_retry_fn(struct work_struct *work)
+{
+	if (conninfra_conf_init() == 0) {
+		pr_info("conninfra.cfg loaded on retry #%d\n",
+			conninfra_conf_retry_cnt);
+		return;
+	}
+	if (++conninfra_conf_retry_cnt <= CONFINFRA_CONF_RETRY_MAX) {
+		schedule_delayed_work(&conninfra_conf_retry_dwork, HZ);
+	} else {
+		pr_info("conninfra.cfg still missing after %d retries, keep defaults\n",
+			CONFINFRA_CONF_RETRY_MAX);
+	}
+}
+
 int conninfra_conf_init(void)
 {
 	int ret = -1;
@@ -592,6 +620,8 @@ int conninfra_conf_init(void)
 	}
 	pr_err("read %s file fails\n", &(g_conninfra_conf.conf_name[0]));
 	g_conninfra_conf.cfg_exist = 0;
+	if (!delayed_work_pending(&conninfra_conf_retry_dwork))
+		schedule_delayed_work(&conninfra_conf_retry_dwork, 2 * HZ);
 	return ret;
 }
 

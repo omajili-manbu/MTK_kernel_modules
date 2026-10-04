@@ -14,6 +14,9 @@
 #include <linux/ctype.h>
 #include <linux/string.h>
 #include <linux/slab.h>
+#include <linux/workqueue.h>
+#include <linux/jiffies.h>
+#include <linux/printk.h>
 
 #include "fm_typedef.h"
 #include "fm_rds.h"
@@ -518,6 +521,40 @@ static signed int fm_cust_config_print(struct fm_cust_cfg *cfg)
 	return 0;
 }
 
+/*
+ * Built-in probe runs before first-stage init mounts /vendor, so the
+ * first fm_cust_config_setup() typically misses fm_cust.cfg (-ENOENT).
+ * Re-read it from a work item until the file shows up (A-51).
+ * Only the boot path (filepath == NULL) arms the retry; the proc
+ * debug path passes a user-supplied name and must not.
+ */
+#define FM_CUST_CFG_RETRY_MAX 30
+static void fm_cust_cfg_retry_fn(struct work_struct *work);
+static DECLARE_DELAYED_WORK(fm_cust_cfg_retry_dwork,
+			   fm_cust_cfg_retry_fn);
+static int fm_cust_cfg_retry_cnt;
+
+static void fm_cust_cfg_retry_fn(struct work_struct *work)
+{
+	signed int ret;
+
+	ret = fm_cust_config_file(FM_CUST_CFG_PATH, &fm_config);
+	if (ret == 0) {
+		WCN_DBG(FM_NTC | MAIN, "FM cust config (retry #%d)\n",
+			fm_cust_cfg_retry_cnt);
+		fm_cust_config_print(&fm_config);
+		pr_info("fmradio: %s loaded on retry #%d\n",
+			FM_CUST_CFG_PATH, fm_cust_cfg_retry_cnt);
+		return;
+	}
+	if (++fm_cust_cfg_retry_cnt <= FM_CUST_CFG_RETRY_MAX) {
+		schedule_delayed_work(&fm_cust_cfg_retry_dwork, HZ);
+	} else {
+		pr_info("fmradio: %s still missing after %d retries, keep default\n",
+			FM_CUST_CFG_PATH, FM_CUST_CFG_RETRY_MAX);
+	}
+}
+
 signed int fm_cust_config_setup(const signed char *filepath)
 {
 	signed int ret = 0;
@@ -546,6 +583,9 @@ signed int fm_cust_config_setup(const signed char *filepath)
 	ret = fm_cust_config_file(filep, &fm_config);
 	WCN_DBG(FM_NTC | MAIN, "FM cust config\n");
 	fm_cust_config_print(&fm_config);
+	if (ret != 0 && !filepath &&
+	    !delayed_work_pending(&fm_cust_cfg_retry_dwork))
+		schedule_delayed_work(&fm_cust_cfg_retry_dwork, 2 * HZ);
 	return ret;
 }
 
