@@ -8,6 +8,7 @@
 
 #include <linux/platform_device.h>
 #include <linux/cdev.h>
+#include <linux/workqueue.h>
 
 typedef void (*ccd_ipi_handler_t) (void *data,
 				   unsigned int len,
@@ -69,6 +70,10 @@ struct mtk_ccd {
 	struct rproc_subdev *rpmsg_subdev;
 	struct ccd_master_status master_status;
 	struct mtk_ccd_memory *ccd_memory;
+
+	/* rodin A-47: 固件在 /vendor（probe 后才挂载），boot 轮询重试 */
+	struct delayed_work boot_work;
+	int boot_attempts;
 };
 
 /**

@@ -20,6 +20,10 @@
 #define CCD_DEV_NAME	"mtk_ccd"
 #define MAX_CODE_SIZE 0x500000
 
+#define CCD_BOOT_FIRST_DELAY_MS	3000
+#define CCD_BOOT_RETRY_MS	1000
+#define CCD_BOOT_MAX_ATTEMPTS	30
+
 char ccd_firmware[100] = {0};
 
 //DECLARE_BUILTIN_FIRMWARE("remoteproc_scp", ccd_firmware);
@@ -371,6 +375,38 @@ static void ccd_unregcdev(struct mtk_ccd *ccd)
 	unregister_chrdev_region(ccd->ccd_devno, 1);
 }
 
+/*
+ * rodin A-47: probe 在 vseq initcall 期运行，早于 /vendor 挂载；remoteproc
+ * 核心的 auto_boot 只请求一次固件（request_firmware_nowait），失败无重试。
+ * 关 auto_boot，改为轮询 rproc_boot：固件随 /vendor 挂载可得后即成功。
+ */
+static void ccd_boot_work(struct work_struct *work)
+{
+	struct delayed_work *dwork = to_delayed_work(work);
+	struct mtk_ccd *ccd = container_of(dwork, struct mtk_ccd, boot_work);
+	int ret;
+
+	ret = rproc_boot(ccd->rproc);
+	if (!ret) {
+		dev_info(ccd->dev, "ccd firmware booted, retried %d attempt(s)\n",
+			 ccd->boot_attempts);
+		return;
+	}
+
+	ccd->boot_attempts++;
+	if (ccd->boot_attempts >= CCD_BOOT_MAX_ATTEMPTS) {
+		dev_info(ccd->dev,
+			 "ccd firmware boot gave up after %d attempts, last error %d\n",
+			 ccd->boot_attempts, ret);
+		return;
+	}
+
+	dev_info(ccd->dev, "ccd firmware not ready (attempt %d/%d, error %d), retrying\n",
+		 ccd->boot_attempts, CCD_BOOT_MAX_ATTEMPTS, ret);
+	schedule_delayed_work(&ccd->boot_work,
+			      msecs_to_jiffies(CCD_BOOT_RETRY_MS));
+}
+
 static int ccd_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -392,6 +428,8 @@ static int ccd_probe(struct platform_device *pdev)
 		dev_info(dev, "unable to allocate remoteproc\n");
 		return -ENOMEM;
 	}
+
+	rproc->auto_boot = false;
 
 	ccd = (struct mtk_ccd *)rproc->priv;
 	ccd->rproc = rproc;
@@ -460,6 +498,10 @@ static int ccd_probe(struct platform_device *pdev)
 
 	mtk_create_client_msgdevice(ccd->rpmsg_subdev);
 
+	INIT_DELAYED_WORK(&ccd->boot_work, ccd_boot_work);
+	schedule_delayed_work(&ccd->boot_work,
+			      msecs_to_jiffies(CCD_BOOT_FIRST_DELAY_MS));
+
 	return 0;
 
 remove_subdev:
@@ -474,6 +516,7 @@ static void ccd_remove(struct platform_device *pdev) /* rodin batch4-4: 6.18 .re
 
 	struct mtk_ccd *ccd = platform_get_drvdata(pdev);
 
+	cancel_delayed_work_sync(&ccd->boot_work);
 	mtk_ccd_mem_release(ccd);
 	ccd_unregcdev(ccd);
 	ccd_remove_rpmsg_subdev(ccd);
