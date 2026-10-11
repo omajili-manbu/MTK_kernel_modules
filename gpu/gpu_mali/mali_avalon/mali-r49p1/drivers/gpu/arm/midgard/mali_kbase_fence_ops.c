@@ -54,18 +54,15 @@ static bool kbase_fence_enable_signaling(struct dma_fence *fence)
 	return true;
 }
 
-static void kbase_fence_fence_value_str(struct dma_fence *fence, char *str, int size)
-{
-	char *format;
-
-	if (KERNEL_VERSION(5, 1, 0) > LINUX_VERSION_CODE)
-		format = "%u";
-	else
-		format = "%llu";
-
-	if (unlikely(!scnprintf(str, (size_t)size, format, fence->seqno)))
-		pr_err("Fail to encode fence seqno to string");
-}
+/*
+ * rodin: 6.18 removed .fence_value_str / .timeline_value_str from struct
+ * dma_fence_ops (upstream 2ce07fea3cc8 "dma-buf/dma-fence: remove
+ * unnecessary callbacks"), so the seqno string formatter below has no
+ * consumer left (the fence seqno is printed by the core itself:
+ * dma_fence_describe() emits "seq %llu" and sync_debug.c prints
+ * fence->seqno directly). Drop the callback and its formatter, matching
+ * the 6.18 core.
+ */
 
 #if MALI_USE_CSF
 static void kbase_fence_release(struct dma_fence *fence)
@@ -81,15 +78,13 @@ const struct dma_fence_ops kbase_fence_ops = { .wait = dma_fence_default_wait,
 					       .get_driver_name = kbase_fence_get_driver_name,
 					       .get_timeline_name = kbase_fence_get_timeline_name,
 					       .enable_signaling = kbase_fence_enable_signaling,
-					       .fence_value_str = kbase_fence_fence_value_str,
 					       .release = kbase_fence_release };
 #else
 extern const struct dma_fence_ops kbase_fence_ops; /* silence checker warning */
 const struct dma_fence_ops kbase_fence_ops = { .wait = dma_fence_default_wait,
 					       .get_driver_name = kbase_fence_get_driver_name,
 					       .get_timeline_name = kbase_fence_get_timeline_name,
-					       .enable_signaling = kbase_fence_enable_signaling,
-					       .fence_value_str = kbase_fence_fence_value_str };
+					       .enable_signaling = kbase_fence_enable_signaling };
 #endif /* MALI_USE_CSF */
 
 KBASE_EXPORT_TEST_API(kbase_fence_ops);
