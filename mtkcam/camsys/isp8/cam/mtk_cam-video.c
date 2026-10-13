@@ -1328,7 +1328,7 @@ int mtk_cam_vidioc_s_meta_fmt(struct file *file, void *fh,
 		break;
 	}
 
-	return mtk_cam_vidioc_g_meta_fmt(file, fh, f);
+	return mtk_cam_vidioc_g_meta_fmt(file, file->private_data, f);
 }
 
 int mtk_cam_vidioc_try_meta_fmt(struct file *file, void *fh,
@@ -1359,7 +1359,7 @@ int mtk_cam_vidioc_try_meta_fmt(struct file *file, void *fh,
 		break;
 	}
 
-	return mtk_cam_vidioc_g_meta_fmt(file, fh, f);
+	return mtk_cam_vidioc_g_meta_fmt(file, file->private_data, f);
 }
 
 int mtk_cam_vidioc_s_selection(struct file *file, void *fh,

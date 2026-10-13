@@ -1326,7 +1326,7 @@ static int mtk_imgsys_vidioc_qbuf(struct file *file, void *priv,
 		dev_buf->dataofst = buf->m.planes[0].reserved[2];
 	}
 
-	ret =  vb2_ioctl_qbuf(file, priv, buf);
+	ret =  vb2_ioctl_qbuf(file, file->private_data, buf);
 	if (ret != 0) {
 		pr_info("[%s] %s:%s: vb2_ioctl_qbuf fail\n",
 			__func__,
@@ -1740,7 +1740,7 @@ static int mtkdip_ioc_set_user_enum(struct file *filp, void *arg)
 long mtk_imgsys_vidioc_default(struct file *file, void *fh,
 			   bool valid_prio, unsigned int cmd, void *arg)
 {
-	struct v4l2_fh *handle = fh;
+	struct v4l2_fh *handle = file->private_data;
 
     if (imgsys_dbg_enable()) {
 	pr_debug("%s cmd: %d handle: %p\n", __func__, cmd, handle);

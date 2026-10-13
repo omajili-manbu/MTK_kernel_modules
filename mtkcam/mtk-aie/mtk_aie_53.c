@@ -1552,7 +1552,7 @@ static int mtk_aie_g_fmt_out_mp(struct file *file, void *fh,
 {
 	struct mtk_aie_ctx *ctx;
 
-	ctx = fh_to_ctx(fh);
+	ctx = fh_to_ctx(file->private_data);
 	if (ctx == NULL)
 		return -1;
 
@@ -1567,7 +1567,7 @@ static int mtk_aie_s_fmt_out_mp(struct file *file, void *fh,
 	struct mtk_aie_ctx *ctx;
 	struct vb2_queue *vq;
 
-	ctx = fh_to_ctx(fh);
+	ctx = fh_to_ctx(file->private_data);
 	if (ctx == NULL)
 		return -1;
 
@@ -1581,7 +1581,7 @@ static int mtk_aie_s_fmt_out_mp(struct file *file, void *fh,
 		return -EBUSY;
 	}
 
-	mtk_aie_try_fmt_out_mp(file, fh, f);
+	mtk_aie_try_fmt_out_mp(file, file->private_data, f);
 	ctx->src_fmt = f->fmt.pix_mp;
 
 	return 0;
@@ -1802,7 +1802,7 @@ int mtk_aie_vidioc_qbuf(struct file *file, void *priv,
 
 	AIE_SYSTRACE_END();
 
-	return v4l2_m2m_ioctl_qbuf(file, priv, buf);
+	return v4l2_m2m_ioctl_qbuf(file, file->private_data, buf);
 
 ERROR_MODEL_DETACH:
 	dma_buf_detach(fd->model_dmabuf, fd->model_attach);

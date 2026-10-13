@@ -1486,7 +1486,7 @@ static int mtk_mae_s_fmt_out_mp(struct file *file, void *fh,
 		return -EBUSY;
 	}
 
-	mtk_mae_try_fmt_out_mp(file, fh, f);
+	mtk_mae_try_fmt_out_mp(file, file->private_data, f);
 	ctx->src_fmt = f->fmt.pix_mp;
 
 	return 0;
@@ -1557,7 +1557,7 @@ int mtk_mae_vioctl_dqbuf(struct file *file, void *priv,
 		return -EPERM;
 	}
 
-	return v4l2_m2m_ioctl_dqbuf(file, priv, buf);
+	return v4l2_m2m_ioctl_dqbuf(file, file->private_data, buf);
 }
 
 /*
@@ -1580,7 +1580,7 @@ int mtk_mae_vidioc_qbuf(struct file *file, void *priv,
 
 #if M2M_ENABLE
 	if (buf->type != V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE)
-		return v4l2_m2m_ioctl_qbuf(file, priv, buf);
+		return v4l2_m2m_ioctl_qbuf(file, file->private_data, buf);
 #endif
 
 	idx = buf->index;
@@ -1847,10 +1847,10 @@ int mtk_mae_vidioc_qbuf(struct file *file, void *priv,
 
 	mtk_mae_get_kernel_time(mae_dev, param, MAE_QBUF_END);
 #if M2M_ENABLE
-	return v4l2_m2m_ioctl_qbuf(file, priv, buf);
+	return v4l2_m2m_ioctl_qbuf(file, file->private_data, buf);
 #else
 	// DEBUG_ONLY
-	return vb2_ioctl_qbuf(file, priv, buf);
+	return vb2_ioctl_qbuf(file, file->private_data, buf);
 	pr_info("%s-", __func__);
 #endif
 }
