@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# 内核模块编译产物，不纳入版本管理
+#
+*.o
+*.o.*
+*.cmd
+.*.cmd
+*.a
+*.ko
+*.mod
+*.mod.c
+*.modinfo
+*.symvers
+modules.order
+modules.builtin
+modules.builtin.modinfo
