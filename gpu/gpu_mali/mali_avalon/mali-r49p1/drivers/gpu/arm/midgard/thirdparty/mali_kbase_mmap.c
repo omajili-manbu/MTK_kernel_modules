@@ -20,160 +20,11 @@
  * kbase_context_get_unmapped_area() interface.
  */
 
-#if (KERNEL_VERSION(6, 1, 0) <= LINUX_VERSION_CODE)
-/**
- * move_mt_gap() -  Search the maple tree for an existing gap of a particular size
- *                  immediately before another pre-identified gap.
- * @gap_start:      Pre-identified gap starting address.
- * @gap_end:        Pre-identified gap ending address.
- * @size:           Size of the new gap needed before gap_start.
- *
- * This function will search the calling process' maple tree
- * for another gap, one that is immediately preceding the pre-identified
- * gap, for a specific size, and upon success it will decrement gap_end
- * by the specified size, and replace gap_start with the new gap_start of
- * the newly identified gap.
- *
- * Return: true if large enough preceding gap is found, false otherwise.
- */
-static bool move_mt_gap(unsigned long *gap_start, unsigned long *gap_end, unsigned long size)
-{
-	unsigned long new_gap_start, new_gap_end;
-
-	MA_STATE(mas, &current->mm->mm_mt, 0, 0);
-
-	if (*gap_end < size)
-		return false;
-
-	/* Calculate the gap end for the new, resultant gap */
-	new_gap_end = *gap_end - size;
-
-	/* If the new gap_end (i.e. new VA start address) is larger than gap_start, than the
-	 * pre-identified gap already has space to shrink to accommodate the decrease in
-	 * gap_end.
-	 */
-	if (new_gap_end >= *gap_start) {
-		/* Pre-identified gap already has space - just patch gap_end to new
-		 * lower value and exit.
-		 */
-		*gap_end = new_gap_end;
-		return true;
-	}
-
-	/* Since the new VA start address (new_gap_end) is below the start of the pre-identified
-	 * gap in the maple tree, see if there is a free gap directly before the existing gap, of
-	 * the same size as the alignment shift, such that the effective gap found is "extended".
-	 * This may be larger than needed but leaves the same distance between gap_end and gap_start
-	 * that currently exists.
-	 */
-	new_gap_start = *gap_start - size;
-	if (mas_empty_area_rev(&mas, new_gap_start, *gap_start - 1, size)) {
-		/* There's no gap between the new start address needed and the
-		 * current start address - so return false to find a new
-		 * gap from the maple tree.
-		 */
-		return false;
-	}
-	/* Suitable gap found - replace gap_start and gap_end with new values. gap_start takes the
-	 * value of the start of new gap found, which now correctly precedes gap_end, and gap_end
-	 * takes on the new aligned value that has now been decremented by the requested size.
-	 */
-	*gap_start = mas.index;
-	*gap_end = new_gap_end;
-	return true;
-}
-
 /**
  * align_and_check() - Align the specified pointer to the provided alignment and
- *                     check that it is still in range. On kernel 6.1 onwards
- *                     this function does not require that the initial requested
- *                     gap is extended with the maximum size needed to guarantee
- *                     an alignment.
- * @gap_end:           Highest possible start address for allocation (end of gap in
- *                     address space)
- * @gap_start:         Start address of current memory area / gap in address space
- * @info:              vm_unmapped_area_info structure passed to caller, containing
- *                     alignment, length and limits for the allocation
- * @is_shader_code:    True if the allocation is for shader code (which has
- *                     additional alignment requirements)
- * @is_same_4gb_page:  True if the allocation needs to reside completely within
- *                     a 4GB chunk
- *
- * Return: true if gap_end is now aligned correctly and is still in range,
- *         false otherwise
- */
-static bool align_and_check(unsigned long *gap_end, unsigned long gap_start,
-			    struct vm_unmapped_area_info *info, bool is_shader_code,
-			    bool is_same_4gb_page)
-{
-	unsigned long alignment_shift;
-
-	/* Compute highest gap address at the desired alignment */
-	*gap_end -= info->length;
-	alignment_shift = (*gap_end - info->align_offset) & info->align_mask;
-
-	/* Align desired start VA (gap_end) by calculated alignment shift amount */
-	if (!move_mt_gap(&gap_start, gap_end, alignment_shift))
-		return false;
-	/* Alignment is done so far - check for further alignment requirements */
-
-	if (is_shader_code) {
-		/* Shader code allocations must not start or end on a 4GB boundary */
-		alignment_shift = info->align_offset ? info->align_offset : info->length;
-		if (0 == (*gap_end & BASE_MEM_MASK_4GB)) {
-			if (!move_mt_gap(&gap_start, gap_end, alignment_shift))
-				return false;
-		}
-		if (0 == ((*gap_end + info->length) & BASE_MEM_MASK_4GB)) {
-			if (!move_mt_gap(&gap_start, gap_end, alignment_shift))
-				return false;
-		}
-
-		if (!(*gap_end & BASE_MEM_MASK_4GB) ||
-		    !((*gap_end + info->length) & BASE_MEM_MASK_4GB))
-			return false;
-	} else if (is_same_4gb_page) {
-		unsigned long start = *gap_end;
-		unsigned long end = *gap_end + info->length;
-		unsigned long mask = ~((unsigned long)U32_MAX);
-
-		/* Check if 4GB boundary is straddled */
-		if ((start & mask) != ((end - 1) & mask)) {
-			unsigned long offset = end - (end & mask);
-			/* This is to ensure that alignment doesn't get
-			 * disturbed in an attempt to prevent straddling at
-			 * 4GB boundary. The GPU VA is aligned to 2MB when the
-			 * allocation size is > 2MB and there is enough CPU &
-			 * GPU virtual space.
-			 */
-			unsigned long rounded_offset = ALIGN(offset, info->align_mask + 1);
-
-			if (!move_mt_gap(&gap_start, gap_end, rounded_offset))
-				return false;
-			/* Re-calculate start and end values */
-			start = *gap_end;
-			end = *gap_end + info->length;
-
-			/* The preceding 4GB boundary shall not get straddled,
-			 * even after accounting for the alignment, as the
-			 * size of allocation is limited to 4GB and the initial
-			 * start location was already aligned.
-			 */
-			WARN_ON((start & mask) != ((end - 1) & mask));
-		}
-	}
-
-	if ((*gap_end < info->low_limit) || (*gap_end < gap_start))
-		return false;
-
-	return true;
-}
-#else
-/**
- * align_and_check() - Align the specified pointer to the provided alignment and
- *                     check that it is still in range. For Kernel versions below
- *                     6.1, it requires that the length of the alignment is already
- *                     extended by a worst-case alignment mask.
+ *                     check that it is still in range. It requires that the
+ *                     requested length is already extended by a worst-case
+ *                     alignment mask (info->length + info->align_mask).
  * @gap_end:           Highest possible start address for allocation (end of gap in
  *                     address space)
  * @gap_start:         Start address of current memory area / gap in address space
@@ -241,7 +92,6 @@ static bool align_and_check(unsigned long *gap_end, unsigned long gap_start,
 
 	return true;
 }
-#endif
 
 /**
  * kbase_unmapped_area_topdown() - allocates new areas top-down from
@@ -273,6 +123,14 @@ static bool align_and_check(unsigned long *gap_end, unsigned long gap_start,
  * case when the memory is executable shader core memory, for which it is
  * ensured that the gap does not end on a 4GB boundary, and for the case when
  * memory needs to be confined within a 4GB chunk.
+ *
+ * On kernels >= 6.1 the rb-tree helpers are gone; the identical
+ * hole-by-hole top-down scan is replayed with a vma_iterator
+ * (descending from TASK_SIZE via vma_prev()), one align_and_check()
+ * probe per hole. This replaces the previous mas_empty_area_rev()
+ * retry loop, whose re-entrant rewind gave no termination guarantee
+ * once align_and_check() permanently rejected the highest empty
+ * area.
  *
  * Return: address of the found gap end (high limit) if area is found;
  *         -ENOMEM if search is unsuccessful
@@ -371,43 +229,75 @@ check_current:
 		}
 	}
 #else
-	unsigned long high_limit, gap_start, gap_end;
+	unsigned long length, low_limit, high_limit, gap_start, gap_end;
+	struct mm_struct *mm = current->mm;
+	struct vm_area_struct *vma;
+	struct vma_iterator vmi;
 
-	MA_STATE(mas, &current->mm->mm_mt, 0, 0);
+	/* Adjust search length to account for worst case alignment overhead */
+	length = info->length + info->align_mask;
+	if (length < info->length)
+		return -ENOMEM;
 
 	/*
 	 * Adjust search limits by the desired length.
 	 * See implementation comment at top of unmapped_area().
 	 */
 	gap_end = info->high_limit;
-	if (gap_end < info->length)
+	if (gap_end < length)
 		return -ENOMEM;
-	high_limit = gap_end - info->length;
+	high_limit = gap_end - length;
 
 	if (info->low_limit > high_limit)
 		return -ENOMEM;
+	low_limit = info->low_limit + length;
 
-	while (true) {
-		if (mas_empty_area_rev(&mas, info->low_limit, info->high_limit - 1, info->length))
-			return -ENOMEM;
-		gap_end = mas.last + 1;
-		gap_start = mas.index;
+	/*
+	 * Replay the rb-tree algorithm below for kernels < 6.1 on the maple
+	 * tree: walk the VMAs in descending address order and probe the hole
+	 * above each one, from the top down, one align_and_check() per hole.
+	 *
+	 * Start from TASK_SIZE, not info->high_limit: vma_prev() returns the
+	 * VMA ending at or before the iterator position, so a VMA straddling
+	 * the search ceiling would be skipped from a info->high_limit start
+	 * and its mapped body would be wrongly counted as hole space.
+	 */
+	vma_iter_init(&vmi, mm, TASK_SIZE);
 
-		if (align_and_check(&gap_end, gap_start, info, is_shader_code, is_same_4gb_page))
-			return gap_end;
+	for (vma = vma_prev(&vmi); vma; vma = vma_prev(&vmi)) {
+		gap_start = vma->vm_end;
 
-		/*
-		 * The highest empty area failed the GPU alignment/4GB constraints.
-		 * Any other usable gap must lie below this one: shrink the search
-		 * ceiling so the next iteration cannot return the same gap.
-		 * Otherwise mas_empty_area_rev() keeps handing back the identical
-		 * gap and this loop spins forever while the caller holds
-		 * mm->mmap_lock for write, wedging the whole system (observed as
-		 * SurfaceFlinger blocking on /proc/<pid>/cmdline behind this lock).
+		/* Clip the hole top with the original high_limit. */
+		if (gap_end > info->high_limit)
+			gap_end = info->high_limit;
+
+		if (gap_start <= high_limit && gap_end - gap_start >= length) {
+			if (align_and_check(&gap_end, gap_start, info, is_shader_code,
+					    is_same_4gb_page))
+				return gap_end;
+		}
+
+		/* The next hole's top is this VMA's start; once the hole tops
+		 * drop below the adjusted low limit, every remaining hole is
+		 * lower still.
 		 */
-		if (gap_start <= info->low_limit)
+		gap_end = vma->vm_start;
+		if (gap_end < low_limit)
 			return -ENOMEM;
-		info->high_limit = gap_start;
+	}
+
+	/*
+	 * The hole below the lowest VMA (the whole range when no VMA was
+	 * visited): its floor is 0, align_and_check() enforces
+	 * info->low_limit.
+	 */
+	gap_start = 0;
+	if (gap_end > info->high_limit)
+		gap_end = info->high_limit;
+	if (gap_end - gap_start >= length) {
+		if (align_and_check(&gap_end, gap_start, info, is_shader_code,
+				    is_same_4gb_page))
+			return gap_end;
 	}
 #endif
 	return -ENOMEM;
