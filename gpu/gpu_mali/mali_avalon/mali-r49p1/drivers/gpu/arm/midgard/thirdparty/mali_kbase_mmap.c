@@ -395,6 +395,19 @@ check_current:
 
 		if (align_and_check(&gap_end, gap_start, info, is_shader_code, is_same_4gb_page))
 			return gap_end;
+
+		/*
+		 * The highest empty area failed the GPU alignment/4GB constraints.
+		 * Any other usable gap must lie below this one: shrink the search
+		 * ceiling so the next iteration cannot return the same gap.
+		 * Otherwise mas_empty_area_rev() keeps handing back the identical
+		 * gap and this loop spins forever while the caller holds
+		 * mm->mmap_lock for write, wedging the whole system (observed as
+		 * SurfaceFlinger blocking on /proc/<pid>/cmdline behind this lock).
+		 */
+		if (gap_start <= info->low_limit)
+			return -ENOMEM;
+		info->high_limit = gap_start;
 	}
 #endif
 	return -ENOMEM;
