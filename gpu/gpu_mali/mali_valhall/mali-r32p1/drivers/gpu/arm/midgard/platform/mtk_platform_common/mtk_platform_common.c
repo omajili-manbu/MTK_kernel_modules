@@ -121,7 +121,7 @@ int mtk_common_ged_dvfs_get_last_commit_idx(void)
 static unsigned int mtk_common_gpu_memory_usage(void)
 {
 	unsigned int used_pages = atomic_read(&(mali_kbdev->memdev.used_pages));
-	return used_pages * 4096;
+	return used_pages << PAGE_SHIFT;
 }
 #endif
 
