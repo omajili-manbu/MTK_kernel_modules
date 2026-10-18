@@ -17,6 +17,7 @@
 #include <linux/workqueue.h>
 #include <linux/jiffies.h>
 #include <linux/printk.h>
+#include <linux/rodin_vendor_fw.h>
 
 #include "fm_typedef.h"
 #include "fm_rds.h"
@@ -538,6 +539,8 @@ static void fm_cust_cfg_retry_fn(struct work_struct *work)
 {
 	signed int ret;
 
+	/* The first boot load can only succeed after /vendor is mounted. */
+	rodin_vendor_fw_wait();
 	ret = fm_cust_config_file(FM_CUST_CFG_PATH, &fm_config);
 	if (ret == 0) {
 		WCN_DBG(FM_NTC | MAIN, "FM cust config (retry #%d)\n",
@@ -564,6 +567,17 @@ signed int fm_cust_config_setup(const signed char *filepath)
 	fm_cust_config_default(&fm_config);
 	WCN_DBG(FM_NTC | MAIN, "FM default config\n");
 	fm_cust_config_print(&fm_config);
+
+	/*
+	 * Built-in init runs before first-stage init mounts /vendor.
+	 * Keep the defaults and let the retry work do the first real
+	 * read once the shared firmware gate opens.
+	 */
+	if (!filepath && !rodin_vendor_fw_ready()) {
+		if (!delayed_work_pending(&fm_cust_cfg_retry_dwork))
+			schedule_delayed_work(&fm_cust_cfg_retry_dwork, 2 * HZ);
+		return ret;
+	}
 
 	if (!filepath) {
 		filep = FM_CUST_CFG_PATH;

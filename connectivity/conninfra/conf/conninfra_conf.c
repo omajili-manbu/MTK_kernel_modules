@@ -14,6 +14,7 @@
 #define pr_fmt(fmt) KBUILD_MODNAME "@(%s:%d) " fmt, __func__, __LINE__
 
 #include <linux/firmware.h>
+#include <linux/rodin_vendor_fw.h>
 #include <linux/workqueue.h>
 #include <linux/jiffies.h>
 #include "conninfra_conf.h"
@@ -564,6 +565,7 @@ static int platform_release_firmware(osal_firmware **ppPatch)
  * Re-run it from a work item until the file shows up (A-51).
  */
 #define CONFINFRA_CONF_RETRY_MAX 30
+static int conninfra_conf_init_internal(bool wait_for_fw);
 static void conninfra_conf_retry_fn(struct work_struct *work);
 static DECLARE_DELAYED_WORK(conninfra_conf_retry_dwork,
 			   conninfra_conf_retry_fn);
@@ -571,7 +573,7 @@ static int conninfra_conf_retry_cnt;
 
 static void conninfra_conf_retry_fn(struct work_struct *work)
 {
-	if (conninfra_conf_init() == 0) {
+	if (conninfra_conf_init_internal(true) == 0) {
 		pr_info("conninfra.cfg loaded on retry #%d\n",
 			conninfra_conf_retry_cnt);
 		return;
@@ -584,7 +586,7 @@ static void conninfra_conf_retry_fn(struct work_struct *work)
 	}
 }
 
-int conninfra_conf_init(void)
+static int conninfra_conf_init_internal(bool wait_for_fw)
 {
 	int ret = -1;
 	const osal_firmware *conf_inst;
@@ -598,6 +600,21 @@ int conninfra_conf_init(void)
 	g_conninfra_conf.cfg_exist = 0;
 	return 0;
 #endif
+	/*
+	 * Built-in init runs before first-stage init mounts /vendor,
+	 * so a request made here is bound to fail.  Keep the defaults
+	 * and let the existing retry work perform the first real load
+	 * once the shared firmware gate opens.
+	 */
+	if (!wait_for_fw && !rodin_vendor_fw_ready()) {
+		g_conninfra_conf.cfg_exist = 0;
+		if (!delayed_work_pending(&conninfra_conf_retry_dwork))
+			schedule_delayed_work(&conninfra_conf_retry_dwork, 2 * HZ);
+		return 0;
+	}
+	if (wait_for_fw)
+		rodin_vendor_fw_wait();
+
 	if (0 ==
 	    platform_request_firmware(&g_conninfra_conf.conf_name[0],
 					(osal_firmware **) &conf_inst)) {
@@ -623,6 +640,11 @@ int conninfra_conf_init(void)
 	if (!delayed_work_pending(&conninfra_conf_retry_dwork))
 		schedule_delayed_work(&conninfra_conf_retry_dwork, 2 * HZ);
 	return ret;
+}
+
+int conninfra_conf_init(void)
+{
+	return conninfra_conf_init_internal(false);
 }
 
 int conninfra_conf_set_cfg_file(const char *name)
