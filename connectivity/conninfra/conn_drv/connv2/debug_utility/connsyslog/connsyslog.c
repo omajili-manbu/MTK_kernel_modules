@@ -733,7 +733,7 @@ static void connlog_fw_log_parser(struct connlog_dev* handler, ssize_t sz)
 				print_len = buf_len >= LOG_MAX_LEN ? LOG_MAX_LEN - 1 : buf_len;
 				memcpy(log_line, buf + LOG_HEAD_LENG, print_len);
 				log_line[print_len] = 0;
-				pr_info("%s: %s\n", type_to_title[conn_type], log_line);
+				pr_debug("%s: %s\n", type_to_title[conn_type], log_line);
 				sz -= (LOG_HEAD_LENG + buf_len);
 				buf += (LOG_HEAD_LENG + buf_len);
 				continue;
@@ -742,7 +742,7 @@ static void connlog_fw_log_parser(struct connlog_dev* handler, ssize_t sz)
 				memcpy(&systime, buf + 28, sizeof(systime));
 				memcpy(&utc_s, buf + 32, sizeof(utc_s));
 				memcpy(&utc_us, buf + 36, sizeof(utc_us));
-				pr_info("%s: timesync :  (%u) %u.%06u\n",
+				pr_debug("%s: timesync :  (%u) %u.%06u\n",
 					type_to_title[conn_type], systime, utc_s, utc_us);
 				sz -= TIMESYNC_LENG;
 				buf += TIMESYNC_LENG;
