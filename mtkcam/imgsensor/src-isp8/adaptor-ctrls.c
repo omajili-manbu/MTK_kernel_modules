@@ -92,6 +92,10 @@ static inline void setup_ae_ctrl_dbg_info(struct adaptor_ctx *ctx)
 static void dump_perframe_info(struct adaptor_ctx *ctx, struct mtk_hdr_ae *ae_ctrl)
 {
 	const unsigned long long curr_sys_ts = ktime_get_boottime_ns();
+
+	/* per-frame debug dump: silent unless sensor_debug is on */
+	if (ctx->sensor_debug_flag && !*ctx->sensor_debug_flag)
+		return;
 	unsigned int delta_ae_ctrl_sof_cnt_ms = 0, delta_curr_ae_ctrl_ms = 0;
 	struct mtk_ebd_dump *obj;
 	char *ebd_msg = NULL;

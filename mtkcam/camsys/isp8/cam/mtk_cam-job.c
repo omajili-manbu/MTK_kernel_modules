@@ -2186,7 +2186,7 @@ static int apply_engines_cq_extisp(struct mtk_cam_job *job,
 	}
 
 
-	dev_info(ctx->cam->dev, "[%s] ctx-%d CQ-0x%x eng 0x%lx/0x%lx cq_addr: %pad, data:0x%lx, job's tg_cnt:%d [%d][%d][%d]\n",
+	dev_dbg(ctx->cam->dev, "[%s] ctx-%d CQ-0x%x eng 0x%lx/0x%lx cq_addr: %pad, data:0x%lx, job's tg_cnt:%d [%d][%d][%d]\n",
 		 __func__, ctx->stream_id, frame_seq_no, cq_engine, cq_engine_for_extisp,
 		 &cq->daddr, extisp_data, job->job_state.tg_cnt,
 		 ctx->cam_ctrl.r_info.extisp_tg_cnt[EXTISP_DATA_PD],
@@ -2301,7 +2301,7 @@ static int apply_engines_cq(struct mtk_cam_job *job,
 
 	mtk_cam_apply_qos(job);
 	ctx->cam_ctrl.frame_sync_id = job->req_info_id;
-	dev_info(ctx->cam->dev, "[%s] ctx-%d CQ-0x%x(%d) cq_eng 0x%lx used_eng 0x%lx (%s)[rms_dis:%d] cq_thr(%llu) ts(%llu) ref_sof(%llu);%s\n",
+	dev_dbg(ctx->cam->dev, "[%s] ctx-%d CQ-0x%x(%d) cq_eng 0x%lx used_eng 0x%lx (%s)[rms_dis:%d] cq_thr(%llu) ts(%llu) ref_sof(%llu);%s\n",
 		__func__, ctx->stream_id, frame_seq_no, job->req_info_id, cq_engine,
 		used_engine, job->scen_str, job->rms_disable, job->job_state.cq_trigger_thres_ns,
 		ts, job->job_state.reference_sof_ns,
@@ -6865,7 +6865,7 @@ int job_handle_done(struct mtk_cam_job *job)
 		debug_ts[0] = '\0';
 		debug_str_local_ts(job, debug_ts, sizeof(debug_ts));
 
-		dev_info(ctx->cam->dev, "%s: ctx-%d f_seq:0x%x req:%s(%d) ltms:%d pipe:0x%x ts:%lld%s%s,%s\n",
+		dev_dbg(ctx->cam->dev, "%s: ctx-%d f_seq:0x%x req:%s(%d) ltms:%d pipe:0x%x ts:%lld%s%s,%s\n",
 			 __func__, ctx->stream_id,
 			 job->frame_seq_no,
 			 job->req->debug_str, job->req_seq, job->need_copy_ltmsgo,

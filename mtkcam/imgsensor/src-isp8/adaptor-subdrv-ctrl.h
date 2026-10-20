@@ -46,8 +46,9 @@
 		_sd = adaptor_ixc_get_clientdata(&ctx->ixc_client); \
 	if (_sd) \
 		_adaptor_ctx = to_ctx(_sd); \
-	if (_adaptor_ctx && (_adaptor_ctx)->subdrv) { \
-		dev_info(_adaptor_ctx->dev, "[%s][%s] " format, \
+	if (_adaptor_ctx && (_adaptor_ctx)->subdrv \
+		&& unlikely(*((_adaptor_ctx)->sensor_debug_flag))) {\
+		dev_info(_adaptor_ctx->dev, "[%s][%s] " format,\
 			(_adaptor_ctx)->subdrv->name, __func__, ##args); \
 	} \
 } while (0)
