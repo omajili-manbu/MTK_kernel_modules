@@ -26,7 +26,8 @@
 #define MTK_CCU_CAM_MAIN_NAME       "ccucammain"
 
 #if defined(SECURE_CCU)
-#define CCU_FW_NAME					"lib3a.ccu /* r143: dummy(52B) 无法响应 IPC ⇒ 上电/复位/下电风暴（F5 冻结根因同款）；真固件在 /vendor/firmware */"
+/* r143: dummy(52B) 无法响应 IPC，上电/复位/下电风暴（F5 同款）；真固件在 /vendor/firmware */
+"lib3a.ccu"
 #else
 #define CCU_FW_NAME					"lib3a.ccu"
 #endif
