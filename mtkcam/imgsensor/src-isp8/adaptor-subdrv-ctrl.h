@@ -46,8 +46,11 @@
 		_sd = adaptor_ixc_get_clientdata(&ctx->ixc_client); \
 	if (_sd) \
 		_adaptor_ctx = to_ctx(_sd); \
-	if (_adaptor_ctx && (_adaptor_ctx)->subdrv \
-		&& unlikely(*((_adaptor_ctx)->sensor_debug_flag))) {\
+	/* MUST 类 = 传感器侧重要事件（probe/流开关/模式切换等），默认打印；
+	 * 例行日志仍走 DRV_LOG（debug 门控）与 DRV_LOG_MORE（level 2）。
+	 * 8d72e417 曾把 MUST 一并收进 sensor_debug 门控致 171 处默认静默，
+	 * 冻结调查取证面受损，恢复无条件打印 */ \
+	if (_adaptor_ctx && (_adaptor_ctx)->subdrv) {\
 		dev_info(_adaptor_ctx->dev, "[%s][%s] " format,\
 			(_adaptor_ctx)->subdrv->name, __func__, ##args); \
 	} \
