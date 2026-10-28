@@ -479,9 +479,14 @@ ifeq ($(CONFIG_MALI_PRFCNT_SET_SELECT_VIA_DEBUG_FS), y)
     endif
 endif
 
+# Skip when kernel config symbols are not loaded: kbuild clean/mrproper parses
+# this Makefile without auto.conf (CONFIG_* empty) while the OOT knob env may
+# still arm CONFIG_MALI_FENCE_DEBUG, which must not abort `make clean`.
 ifeq ($(CONFIG_MALI_FENCE_DEBUG), y)
     ifneq ($(CONFIG_SYNC_FILE), y)
-        $(error CONFIG_MALI_FENCE_DEBUG depends on CONFIG_SYNC_FILE to be set in Kernel configuration)
+        ifneq ($(CONFIG_SYNC_FILE),)
+            $(error CONFIG_MALI_FENCE_DEBUG depends on CONFIG_SYNC_FILE to be set in Kernel configuration)
+        endif
     endif
 endif
 
