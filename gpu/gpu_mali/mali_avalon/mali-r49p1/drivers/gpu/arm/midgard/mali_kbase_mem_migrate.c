@@ -33,7 +33,7 @@
  *    只接受 PGTY_offline / PGTY_zsmalloc（mm/migrate.c:61-82），页面识别走
  *    PageOffline/PageZsmalloc 固定标志 —— 驱动自定义 movable_operations
  *    在本内核上**无法注册**，完整移植必须改内核核心（新增 page type + page flag），
- *    超出本批范围。
+ *    超出树内适配范围。
  *
  * 2) 设备真值同为此特性关闭（blob 实证）：vendor_dlkm 的 mali_kbase_mt6899_r49.ko 里
  *    kbase_page_migration_enabled 位于 **.bss**（初值 0 = 显式关闭），即设备构建面

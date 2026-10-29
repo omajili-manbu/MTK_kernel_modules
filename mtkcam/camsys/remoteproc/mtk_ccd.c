@@ -376,7 +376,7 @@ static void ccd_unregcdev(struct mtk_ccd *ccd)
 }
 
 /*
- * rodin A-47: probe 在 vseq initcall 期运行，早于 /vendor 挂载；remoteproc
+ * rodin: probe 在 vseq initcall 期运行，早于 /vendor 挂载；remoteproc
  * 核心的 auto_boot 只请求一次固件（request_firmware_nowait），失败无重试。
  * 关 auto_boot，改为轮询 rproc_boot：固件随 /vendor 挂载可得后即成功。
  */

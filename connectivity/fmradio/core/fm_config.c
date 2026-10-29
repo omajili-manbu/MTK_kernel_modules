@@ -525,7 +525,7 @@ static signed int fm_cust_config_print(struct fm_cust_cfg *cfg)
 /*
  * Built-in probe runs before first-stage init mounts /vendor, so the
  * first fm_cust_config_setup() typically misses fm_cust.cfg (-ENOENT).
- * Re-read it from a work item until the file shows up (A-51).
+ * Re-read it from a work item until the file shows up.
  * Only the boot path (filepath == NULL) arms the retry; the proc
  * debug path passes a user-supplied name and must not.
  */

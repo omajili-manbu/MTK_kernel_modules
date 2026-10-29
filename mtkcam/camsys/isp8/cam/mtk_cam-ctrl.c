@@ -10,7 +10,7 @@
 #include <media/v4l2-event.h>
 #include <media/v4l2-subdev.h>
 
-#include <soc/mediatek/mtk_smi_internal.h> /* rodin P1: vendor smi declarations (kernel smi.h shadows the vendor copy) */
+#include <soc/mediatek/mtk_smi_internal.h> /* rodin: vendor smi declarations (kernel smi.h shadows the vendor copy) */
 
 #include "mtk_cam.h"
 #include "mtk_cam-ctrl.h"

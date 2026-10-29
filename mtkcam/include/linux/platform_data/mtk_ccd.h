@@ -71,7 +71,7 @@ struct mtk_ccd {
 	struct ccd_master_status master_status;
 	struct mtk_ccd_memory *ccd_memory;
 
-	/* rodin A-47: 固件在 /vendor（probe 后才挂载），boot 轮询重试 */
+	/* rodin: 固件在 /vendor（probe 后才挂载），boot 轮询重试 */
 	struct delayed_work boot_work;
 	int boot_attempts;
 };

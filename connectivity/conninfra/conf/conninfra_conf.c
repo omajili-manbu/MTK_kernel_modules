@@ -562,7 +562,7 @@ static int platform_release_firmware(osal_firmware **ppPatch)
 /*
  * Built-in probe runs before first-stage init mounts /vendor, so the
  * first conninfra_conf_init() typically misses conninfra.cfg (-ENOENT).
- * Re-run it from a work item until the file shows up (A-51).
+ * Re-run it from a work item until the file shows up.
  */
 #define CONFINFRA_CONF_RETRY_MAX 30
 static int conninfra_conf_init_internal(bool wait_for_fw);
