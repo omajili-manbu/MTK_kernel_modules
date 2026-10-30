@@ -499,7 +499,7 @@ int consys_pre_cal_backup_mt6899(unsigned int offset, unsigned int size)
 	mapped_addr vir_addr = 0;
 	unsigned int expected_size = 0;
 
-	pr_info("[%s] emi base=0x%lx offset=0x%x size=%d", __func__,
+	pr_info("[%s] emi base=0x%llx offset=0x%x size=%d", __func__,
 		g_con_emi_phy_base, offset, size);
 	if ((size == 0) || ((offset & 0x3) != 0x0))
 		return 1;

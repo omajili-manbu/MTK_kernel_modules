@@ -8617,7 +8617,6 @@ static signed int DPE_probe(struct platform_device *pDev)
 #ifndef EP_NO_CLKMGR
 	struct device_node *node;
 #endif
-	int ret;
 #if IS_ENABLED(CONFIG_OF)
 	struct DPE_device *DPE_dev;
 	#ifdef CMASYS_CLK_Debug

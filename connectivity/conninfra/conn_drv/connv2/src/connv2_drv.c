@@ -429,15 +429,15 @@ ssize_t connv2_coredump_emi_read(struct file *filp, char __user *buf, size_t cou
 	size = end_offset - start_offset;
 
 	if (count != (size + mcif_emi_size) || end_offset < start_offset) {
-		pr_notice("[%s][0x%x,0x%x] connsys emi_size=0x%x, mcif emi size=0x%x but buf_size=0x%x",
+		pr_notice("[%s][0x%x,0x%x] connsys emi_size=0x%x, mcif emi size=0x%x but buf_size=0x%zx",
 			__func__, start_offset, end_offset,
 			size, mcif_emi_size, count);
 		return 0;
 	} else {
-		pr_info("[%s] base=[0x%x] [0x%x~0x%x] size=0x%x", __func__, emi_dump_addr, start_offset, end_offset, size);
+		pr_info("[%s] base=[0x%llx] [0x%x~0x%x] size=0x%x", __func__, emi_dump_addr, start_offset, end_offset, size);
 		emi_virt_addr_base = ioremap(emi_dump_addr + start_offset, size);
 		if (emi_virt_addr_base == NULL) {
-			pr_notice("[%s] remap fail, addr=0x%x size=%d",
+			pr_notice("[%s] remap fail, addr=0x%llx size=%d",
 				__func__, emi_dump_addr + start_offset, size);
 			return 0;
 		}
@@ -451,17 +451,17 @@ ssize_t connv2_coredump_emi_read(struct file *filp, char __user *buf, size_t cou
 		memcpy_fromio(tmp_buf, emi_virt_addr_base, size);
 		retval = copy_to_user(buf, tmp_buf, size);
 		if (retval != 0)
-			pr_notice("[%s] copy to user fail: %d", __func__, retval);
+			pr_notice("[%s] copy to user fail: %lu", __func__, retval);
 		iounmap(emi_virt_addr_base);
 		osal_free(tmp_buf);
 
 		if (mcif_emi_size == 0)
 			return (size - retval);
 
-		pr_info("[%s] base=[0x%x] [0x%x~0x%x] size=0x%x", __func__, mcif_emi_dump_addr, 0, mcif_emi_size, mcif_emi_size);
+		pr_info("[%s] base=[0x%llx] [0x%x~0x%x] size=0x%x", __func__, mcif_emi_dump_addr, 0, mcif_emi_size, mcif_emi_size);
 		mcif_emi_virt_addr_base = ioremap(mcif_emi_dump_addr, mcif_emi_size);
 		if (mcif_emi_virt_addr_base == NULL) {
-			pr_notice("[%s] remap fail, addr=0x%x size=%d",
+			pr_notice("[%s] remap fail, addr=0x%llx size=%d",
 				__func__, mcif_emi_dump_addr, mcif_emi_size);
 			return size;
 		}
@@ -475,7 +475,7 @@ ssize_t connv2_coredump_emi_read(struct file *filp, char __user *buf, size_t cou
 		memcpy_fromio(tmp_buf, mcif_emi_virt_addr_base, mcif_emi_size);
 		retval = copy_to_user(buf + size, tmp_buf, mcif_emi_size);
 		if (retval != 0)
-			pr_notice("[%s] copy to user fail: %d", __func__, retval);
+			pr_notice("[%s] copy to user fail: %lu", __func__, retval);
 		iounmap(mcif_emi_virt_addr_base);
 
 		osal_free(tmp_buf);
@@ -536,7 +536,7 @@ int connv2_get_chip_info(uint8_t *buf, u32 buf_sz)
 
 	len = strlen(tmp_buf);
 	if (len > 0 && len < CONN_DUMP_CHIP_INFO_BUF_SIZE) {
-		if (snprintf(buf, buf_sz, "%s", tmp_buf, len) < 0)
+		if (snprintf(buf, buf_sz, "%s", tmp_buf) < 0)
 			pr_notice("[%s] snprintf fail", __func__);
 	} else
 		return -1;
@@ -557,7 +557,7 @@ int connv2_factory_testcase(uint8_t *buf, u32 buf_sz)
 
 	len = strlen(tmp_buf);
 	if (len > 0 && len < CONN_DUMP_TESTCASE_BUF_SIZE) {
-		if (snprintf(buf, buf_sz, "%s", tmp_buf, len) < 0)
+		if (snprintf(buf, buf_sz, "%s", tmp_buf) < 0)
 			pr_notice("[%s] snprintf fail", __func__);
 	} else
 		return -1;
@@ -643,7 +643,7 @@ int mtk_conninfra_probe(struct platform_device *pdev)
 		return -1;
 	}
 
-	pr_info("[%s] --- [%x][%x] of_node[%s][%s]", __func__,
+	pr_info("[%s] --- [%p][%p] of_node[%s][%s]", __func__,
 				pdev->dev.driver->of_match_table, apconninfra_of_ids,
 				(pdev->dev.of_node != NULL ? pdev->dev.of_node->name : ""),
 				(pdev->dev.of_node != NULL ? pdev->dev.of_node->full_name : ""));

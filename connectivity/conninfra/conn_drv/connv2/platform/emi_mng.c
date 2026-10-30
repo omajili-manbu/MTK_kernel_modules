@@ -128,7 +128,7 @@ static void emi_mng_get_gps_emi(struct platform_device *pdev)
 
 	connsys_emi_addr_info.gps_emi_phy_addr = phy_addr;
 	connsys_emi_addr_info.gps_emi_size = phy_size;
-	pr_info("%s emi_addr %x, emi_size %x\n", __func__, phy_addr, phy_size);
+	pr_info("%s emi_addr %llx, emi_size %x\n", __func__, phy_addr, phy_size);
 }
 
 #ifdef ALLOCATE_CONNSYS_EMI_FROM_DTS
@@ -179,7 +179,7 @@ static int emi_mng_get_emi_allocated_by_lk2(struct platform_device *pdev)
 		return -1;
 	}
 
-	pr_info("%s emi_addr %x, emi_size %x\n", __func__, phy_addr, phy_size);
+	pr_info("%s emi_addr %llx, emi_size %x\n", __func__, phy_addr, phy_size);
 	g_con_emi_phy_base = phy_addr;
 	g_con_emi_size = phy_size;
 

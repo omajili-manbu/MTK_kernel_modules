@@ -53,7 +53,7 @@
 #define QOF_SUPPORT_SMI_GCE_CALLBACK					(1)
 #define QOF_ERROR_CODE									(0xdead)
 /* func */
-#define IS_MOD_SUPPORT_QOF(m)		(((m < QOF_TOTAL_MODULE)) && ((g_qof_ver & BIT(m)) == BIT(m)))
+#define IS_MOD_SUPPORT_QOF(m)		((((int)(m)) < ((int)QOF_TOTAL_MODULE)) && ((g_qof_ver & BIT(m)) == BIT(m)))
 #define IS_CON_PWR_ON(val)			((val & (BIT(30)|BIT(31))) == (BIT(30)|BIT(31)) ? TRUE:FALSE)
 #define QOF_GET_REMAP_ADDR(addr)	(g_maped_rg[MAPED_RG_QOF_REG_BASE] + (addr - QOF_REG_BASE))
 #define QOF_LOGI(fmt, args...)		pr_info("[QOF_LOGI]%s:%d " fmt "\n", __func__, __LINE__, ##args)

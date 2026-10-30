@@ -264,7 +264,7 @@ static long conn_adaptor_dev_unlocked_ioctl(struct file *filp, unsigned int cmd,
 		pr_info("[%s] get chip id: 0x%x\n", __func__, retval);
 		break;
 	case CONNINFRA_IOCTL_SET_COREDUMP_MODE:
-		pr_info("[%s] set coredump as: %d\n", __func__, arg);
+		pr_info("[%s] set coredump as: %lu\n", __func__, arg);
 		conn_adaptor_set_coredump_mode(arg);
 		break;
 	case CONNINFRA_IOCTL_GET_ADIE_CHIP_ID:
@@ -302,7 +302,7 @@ int conn_adaptor_dev_fb_notifier_callback(struct notifier_block *self, unsigned 
 #if IS_ENABLED(CONFIG_DEVICE_MODULES_DRM_MEDIATEK)
 	int *data = (int *)v;
 
-	pr_debug("[%s] event=[%u]\n", __func__, event);
+	pr_debug("[%s] event=[%lu]\n", __func__, event);
 
 	if (event != MTK_DISP_EVENT_BLANK) {
 		return 0;
@@ -569,7 +569,7 @@ static int conn_adaptor_dev_do_drv_init(void)
 	conn_adaptor_pm_notifier.notifier_call = conn_adaptor_pm_notifier_callback;
 	iret = register_pm_notifier(&conn_adaptor_pm_notifier);
 	if (iret < 0)
-		pr_notice("%s register_pm_notifier fail %d\n", iret);
+		pr_notice("%s register_pm_notifier fail %d\n", __func__, iret);
 
 	pr_info("ConnInfra Dev: init (%d)\n", iret);
 	g_conn_adaptor_init_status = CONN_ADAPTOR_INIT_DONE;

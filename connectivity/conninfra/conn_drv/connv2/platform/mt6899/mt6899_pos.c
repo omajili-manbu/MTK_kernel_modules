@@ -433,7 +433,7 @@ int consys_spi_read_nolock_int_mt6899(enum sys_spi_subsystem subsystem, unsigned
 	if (check != 0) {
 		pr_err("[%s][%s][STEP1] polling 0x%08lx bit %d fail. Value=0x%08x\n",
 			__func__, get_spi_sys_name(subsystem),
-			spi_base_addr + op->busy_cr,
+			(unsigned long)(spi_base_addr + op->busy_cr),
 			op->polling_bit,
 			CONSYS_REG_READ(spi_base_addr + op->busy_cr));
 		return CONNINFRA_SPI_OP_FAIL;
@@ -453,7 +453,7 @@ int consys_spi_read_nolock_int_mt6899(enum sys_spi_subsystem subsystem, unsigned
 		0, 100, 50, check);
 	if (check != 0) {
 		pr_err("[%s][%d][STEP4] polling 0x%08lx bit %d fail. Value=0x%08x\n",
-			__func__, subsystem, spi_base_addr + op->busy_cr,
+			__func__, subsystem, (unsigned long)(spi_base_addr + op->busy_cr),
 			op->polling_bit,
 			CONSYS_REG_READ(spi_base_addr + op->busy_cr));
 		return CONNINFRA_SPI_OP_FAIL;
@@ -520,7 +520,7 @@ int consys_spi_write_nolock_int_mt6899(enum sys_spi_subsystem subsystem, unsigne
 	if (check != 0) {
 		pr_err("[%s][%s][STEP1] polling 0x%08lx bit %d fail. Value=0x%08x\n",
 			__func__, get_spi_sys_name(subsystem),
-			spi_base_addr + op->busy_cr,
+			(unsigned long)(spi_base_addr + op->busy_cr),
 			op->polling_bit,
 			CONSYS_REG_READ(spi_base_addr + op->busy_cr));
 		return CONNINFRA_SPI_OP_FAIL;
@@ -539,7 +539,7 @@ int consys_spi_write_nolock_int_mt6899(enum sys_spi_subsystem subsystem, unsigne
 	if (check != 0) {
 		pr_err("[%s][%s][STEP4] polling 0x%08lx bit %d fail. Value=0x%08x\n",
 			__func__, get_spi_sys_name(subsystem),
-			spi_base_addr + op->busy_cr,
+			(unsigned long)(spi_base_addr + op->busy_cr),
 			op->polling_bit,
 			CONSYS_REG_READ(spi_base_addr + op->busy_cr));
 		return CONNINFRA_SPI_OP_FAIL;

@@ -570,7 +570,7 @@ static int conninfra_dbg_spi_read(int par1, int par2, int par3)
 
 	get_lock_ret = osal_lock_sleepable_lock(&g_dump_lock);
 	if (get_lock_ret) {
-		pr_err("[%] dump lock fail, ret=%d", get_lock_ret);
+		pr_err("[%s] dump lock fail, ret=%d\n", __func__, get_lock_ret);
 		return 0;
 	}
 
@@ -911,7 +911,7 @@ static int conninfra_dbg_spi_1_read(int par1, int par2, int par3)
 
 	get_lock_ret = osal_lock_sleepable_lock(&g_dump_lock);
 	if (get_lock_ret) {
-		pr_err("[%] dump lock fail, ret=%d", get_lock_ret);
+		pr_err("[%s] dump lock fail, ret=%d\n", __func__, get_lock_ret);
 		return 0;
 	}
 

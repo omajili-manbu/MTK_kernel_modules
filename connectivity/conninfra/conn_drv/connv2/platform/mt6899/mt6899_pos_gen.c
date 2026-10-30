@@ -515,7 +515,7 @@ unsigned int consys_emi_set_remapping_reg_mt6899_gen(
 			con_emi_base_addr, 0, emi_base_addr_offset, 20);
 	}
 
-	pr_info("connsys_emi_base=[0x%lx] remap cr: connsys=[0x%08x]\n",
+	pr_info("connsys_emi_base=[0x%llx] remap cr: connsys=[0x%08x]\n",
 		con_emi_base_addr,
 		CONSYS_REG_READ(CONN_HOST_CSR_TOP_BASE +
 			CONSYS_GEN_CONN2AP_REMAP_MCU_EMI_BASE_ADDR_OFFSET_ADDR));
@@ -526,7 +526,7 @@ unsigned int consys_emi_set_remapping_reg_mt6899_gen(
 			md_shared_emi_base_addr, 0, emi_base_addr_offset, 20);
 	}
 
-	pr_info("mcif_emi_base=[0x%lx] remap cr: mcif=[0x%08x]\n",
+	pr_info("mcif_emi_base=[0x%llx] remap cr: mcif=[0x%08x]\n",
 		md_shared_emi_base_addr,
 		CONSYS_REG_READ(CONN_HOST_CSR_TOP_BASE +
 			CONSYS_GEN_CONN2AP_REMAP_MD_SHARE_EMI_BASE_ADDR_OFFSET_ADDR));
@@ -537,7 +537,7 @@ unsigned int consys_emi_set_remapping_reg_mt6899_gen(
 			gps_emi_base_addr, 0, emi_base_addr_offset, 20);
 	}
 
-	pr_info("gps_emi_base=[0x%lx] remap cr: gps=[0x%08x]\n",
+	pr_info("gps_emi_base=[0x%llx] remap cr: gps=[0x%08x]\n",
 		gps_emi_base_addr,
 		CONSYS_REG_READ(CONN_HOST_CSR_TOP_BASE +
 			CONSYS_GEN_CONN2AP_REMAP_GPS_EMI_BASE_ADDR_OFFSET_ADDR));

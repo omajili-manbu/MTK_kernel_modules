@@ -703,7 +703,7 @@ int consys_hw_bus_clock_ctrl(enum consys_drv_type drv_type, unsigned int bus_clo
 int get_consys_platform_ops(struct platform_device *pdev)
 {
 
-	pr_info("[%s] --- [%x]of_node[%s][%s]", __func__,
+	pr_info("[%s] --- [%p]of_node[%s][%s]", __func__,
 				pdev->dev.driver->of_match_table,
 				(pdev->dev.of_node != NULL ? pdev->dev.of_node->name : ""),
 				(pdev->dev.of_node != NULL ? pdev->dev.of_node->full_name : ""));
@@ -715,7 +715,7 @@ int get_consys_platform_ops(struct platform_device *pdev)
 		return -1;
 	}
 
-	pr_info("[%s] chipid=[%x] [%x]", __func__, g_conninfra_plat_data->chip_id,
+	pr_info("[%s] chipid=[%x] [%p]", __func__, g_conninfra_plat_data->chip_id,
 						g_conninfra_plat_data->hw_ops);
 	if (consys_hw_ops == NULL)
 		consys_hw_ops = (const struct consys_hw_ops_struct *)g_conninfra_plat_data->hw_ops;

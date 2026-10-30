@@ -236,7 +236,7 @@ int consys_reg_init_mt6899(struct platform_device *pdev)
 				(unsigned long) of_iomap(node, i);
 			of_get_address(node, i, &(base_addr->size), &flag);
 
-			pr_info("Get Index(%d-%s) phy(0x%zx) baseAddr=(0x%zx) size=(0x%zx)",
+			pr_info("Get Index(%d-%s) phy(0x%zx) baseAddr=(0x%zx) size=(0x%llu)",
 				i, consys_base_addr_index_to_str[i], base_addr->phy_addr,
 				base_addr->vir_addr, base_addr->size);
 		}

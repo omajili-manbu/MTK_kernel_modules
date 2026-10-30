@@ -158,9 +158,9 @@ static int met_thread(void *pvData)
 
 	info = &data->info;
 	pr_info("type %d\n", info->type);
-	pr_info("read_cr %p, write_cr %p\n", info->read_cr, info->write_cr);
-	pr_info("met_base_ap %p met_base_fw 0x%x, met_size 0x%x, output_len %d\n",
-		info->met_base_ap, info->met_base_fw, info->met_size, info->output_len);
+	pr_info("read_cr %pap, write_cr %pap\n", &info->read_cr, &info->write_cr);
+	pr_info("met_base_ap %pap met_base_fw 0x%x, met_size 0x%x, output_len %d\n",
+		&info->met_base_ap, info->met_base_fw, info->met_size, info->output_len);
 
 	if (info->read_cr == 0 || info->write_cr == 0 || info->met_base_ap == 0 ||
 		info->met_base_fw == 0 || info->met_size == 0) {

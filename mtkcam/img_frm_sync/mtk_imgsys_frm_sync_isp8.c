@@ -676,9 +676,9 @@ int Handler_frame_token_sync_imgsys_isp8(struct mtk_img_frm_sync *mtk_img_frm_sy
 				return -1;
 			}
 			/*previous set/wait token_key get available hw_token before*/
-			token_id = tokenmap[tokenmap_keyidx].hw_token;
+			token_id = (enum sync_event_type_e)tokenmap[tokenmap_keyidx].hw_token;
 			/* set token index to init value*/
-			tokenmap[tokenmap_keyidx].type = imgsys_token_none;
+			tokenmap[tokenmap_keyidx].type = (enum sync_event_type_e)imgsys_token_none;
 			tokenmap[tokenmap_keyidx].hw_token = TOKEN_INVALID_ID;
 			tokenmap[tokenmap_keyidx].frm_owner = 0;
 			tokenmap[tokenmap_keyidx].imgstm_inst = 0;
@@ -871,8 +871,8 @@ int Handler_frame_token_sync_DPE_isp8(struct mtk_img_frm_sync *mtk_img_frm_sync_
 			}
 
 			/*previous set/wait token_key get available hw_token before*/
-			token_id = vsdof_tokenmap[tokenmap_keyidx].hw_token;
-			vsdof_tokenmap[tokenmap_keyidx].type = imgsys_token_none;
+			token_id = (enum sync_event_type_e)vsdof_tokenmap[tokenmap_keyidx].hw_token;
+			vsdof_tokenmap[tokenmap_keyidx].type = (enum sync_event_type_e)imgsys_token_none;
 			vsdof_tokenmap[tokenmap_keyidx].hw_token = TOKEN_INVALID_ID;
 			vsdof_tokenmap[tokenmap_keyidx].frm_owner = 0;
 			vsdof_tokenmap[tokenmap_keyidx].imgstm_inst = 0;
