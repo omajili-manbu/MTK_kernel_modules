@@ -96,7 +96,9 @@ ifeq ($(KBUILD_MODPOST_FAIL_ON_WARNINGS),)
 endif
 
 DRIVER_BUILD_DATE=$(shell date +%Y%m%d%H%M%S)
-ccflags-y += -DDRIVER_BUILD_DATE='"$(DRIVER_BUILD_DATE)"'
+# rodin 6.18（2026-10-30）：DRIVER_BUILD_DATE 是逐次构建变化的时间戳，挂 ccflags-y 会使
+# 全部对象命令行每轮必变，kbuild 命令行比对判过期致整模块重编；仅单文件旗标下发唯一消费者
+CFLAGS_os/linux/gl_wext_priv.o += -DDRIVER_BUILD_DATE='"$(DRIVER_BUILD_DATE)"'
 # ---------------------------------------------------
 # Compile Options
 # ---------------------------------------------------
