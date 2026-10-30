@@ -270,7 +270,7 @@ static int connlog_emi_init(struct connlog_dev* handler,
 
 	emi_addr = emi_config->log_offset + gPhyEmiBase;
 	emi_size = emi_config->log_size;
-	pr_info("[%s][%s] Base offset=%p size=0x%x\n", __func__, type_to_title[conn_type], emi_addr, emi_size);
+	pr_info("[%s][%s] Base offset=%pap size=0x%x\n", __func__, type_to_title[conn_type], &emi_addr, emi_size);
 
 	handler->phyAddrEmiBase = emi_addr;
 	handler->emi_size = emi_size;
@@ -280,10 +280,10 @@ static int connlog_emi_init(struct connlog_dev* handler,
 		pr_err("[%s] EMI mapping fail\n", type_to_title[conn_type]);
 		return -1;
 	}
-	pr_info("[%s][%s] EMI mapping OK virtual(0x%p) (0x%x) physical(0x%x) size=%d\n",
+	pr_info("[%s][%s] EMI mapping OK virtual(0x%p) (0x%p) physical(0x%llx) size=%d\n",
 		__func__, type_to_title[conn_type],
 		handler->virAddrEmiLogBase, handler->virAddrEmiLogBase,
-		(unsigned int)handler->phyAddrEmiBase,
+		(unsigned long long)handler->phyAddrEmiBase,
 		handler->emi_size);
 
 	base_addr = CONNLOG_EMI_BASE_OFFSET;
@@ -1267,7 +1267,7 @@ int connsys_log_init(int conn_type)
 
 	pr_info("[%s][%s] emi=[%x][%x] block size=[%x][%x]",
 				__func__, type_to_title[conn_type],
-				emi_config->log_offset, emi_config->log_size,
+				(unsigned int)emi_config->log_offset, emi_config->log_size,
 				emi_config->block[0].size, emi_config->block[1].size);
 	handler = connlog_subsys_init(conn_type, emi_config);
 
@@ -1533,7 +1533,7 @@ EXPORT_SYMBOL(connsys_dedicated_log_path_blank_state_changed);
 int connsys_dedicated_log_path_apsoc_init(phys_addr_t emiaddr, const struct connlog_emi_config* config)
 {
 	if (gPhyEmiBase != 0 || emiaddr == 0) {
-		pr_err("Connsys log double init or invalid parameter(emiaddr=%p)\n", emiaddr);
+		pr_err("Connsys log double init or invalid parameter(emiaddr=%pap)\n", &emiaddr);
 		return -1;
 	}
 

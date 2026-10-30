@@ -392,7 +392,7 @@ ssize_t _connv3_log_read_to_user(int conn_type, int block_type, char __user *buf
 	written_times[conn_type][block_type]++;
 	written_cnt[conn_type][block_type] += written;
 	if (__ratelimit(&_rs)) {
-		pr_info("[%s] type=[%d] blcok=[%d] write %d times, %d bytes",
+		pr_info("[%s] type=[%d] blcok=[%d] write %d times, %zu bytes",
 			__func__, conn_type, block_type,
 			written_times[conn_type][block_type],
 			written_cnt[conn_type][block_type]);
@@ -508,7 +508,7 @@ u32 connv3_log_handler(int conn_type, enum connv3_log_type type, u8 *buf, u32 si
 	read_times[conn_type][type]++;
 	read_cnt[conn_type][type] += written;
 	if (__ratelimit(&_rs)) {
-		pr_info("[%s] type=[%d] blcok=[%d] read %d times, %d bytes",
+		pr_info("[%s] type=[%d] blcok=[%d] read %d times, %zu bytes",
 			__func__, conn_type, type,
 			read_times[conn_type][type],
 			read_cnt[conn_type][type]);

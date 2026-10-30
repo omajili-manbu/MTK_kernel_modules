@@ -755,7 +755,7 @@ static int connv3_dump_end_dump(struct connv3_dump_ctx *ctx)
 	}
 	connv3_dump_set_dump_state(ctx, CONNV3_COREDUMP_STATE_END);
 
-	pr_info("[%s] tag=[%s] dump command=[%s] cmd length=[%d]\n", __func__, cmd_tag, cmd_str, strlen(cmd_str));
+	pr_info("[%s] tag=[%s] dump command=[%s] cmd length=[%zu]\n", __func__, cmd_tag, cmd_str, strlen(cmd_str));
 	ret = conndump_netlink_send_to_native(ctx->conn_type, cmd_tag, cmd_str, strlen(cmd_str));
 
 	if (ret < 0) {
@@ -799,7 +799,7 @@ static int connv3_send_emi_dump(struct connv3_dump_ctx *ctx, bool need_end)
 	else
 		cmd_tag = "[EMI_ONLY]"; // dump emi only
 
-	pr_info("[%s] tag=[%s] dump command=[%s] cmd length=[%d]\n", __func__, cmd_tag, cmd_str, strlen(cmd_str));
+	pr_info("[%s] tag=[%s] dump command=[%s] cmd length=[%zu]\n", __func__, cmd_tag, cmd_str, strlen(cmd_str));
 	ret = conndump_netlink_send_to_native(ctx->conn_type, cmd_tag, cmd_str, strlen(cmd_str));
 
 	if (ret < 0) {
@@ -874,7 +874,7 @@ static int connv3_dump_exception_show(struct connv3_dump_ctx *ctx, char *customi
 		"%s %s", INFO_HEAD, exception_log) < 0)
 		pr_notice("%s snprintf issue_info.exception_log failed\n", __func__);
 
-	pr_info("par1: [%s] par2: [%s] par3: [%d]\n",
+	pr_info("par1: [%s] par2: [%s] par3: [%zu]\n",
 		exp_tag_name,
 		ctx->issue_info.exception_log,
 		strlen(ctx->issue_info.exception_log));

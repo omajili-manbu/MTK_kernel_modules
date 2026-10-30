@@ -574,9 +574,9 @@ static void conndump_info_analysis(
 					pr_err("parser ' ' is not find\n");
 					pTemp2 = pTemp + 1;
 				}
-				pr_info("(pTemp2 - pTemp)=%d\n", (pTemp2 - pTemp));
+				pr_info("(pTemp2 - pTemp)=%td\n", (pTemp2 - pTemp));
 				if ((remain_array_len) > (pTemp2 - pTemp)) {
-					pr_info("Copy %d\n", pTemp2 - pTemp);
+					pr_info("Copy %td\n", pTemp2 - pTemp);
 					memcpy(
 						&ctx->info.assert_info[idx],
 						pTemp,
@@ -1281,7 +1281,7 @@ static void conndump_exception_show(struct connsys_dump_ctx* ctx, bool full_dump
 			pr_notice("%s snprintf failed\n", __func__);
 	}
 
-	pr_info("par1: [%s] pars: [%s] par3: [%d]\n",
+	pr_info("par1: [%s] pars: [%s] par3: [%zu]\n",
 		coredump_mng_get_tag_name(ctx->conn_type),
 		ctx->info.exception_log,
 		strlen(ctx->info.exception_log));
@@ -1638,7 +1638,7 @@ void* connsys_coredump_init(
 	/* EMI init */
 	coredump_mng_get_emi_phy_addr(&emi_base, &emi_size);
 	coredump_mng_get_mcif_emi_phy_addr(NULL, &mcif_emi_size);
-	pr_info("[%s][%s] Connsys emi_base=0x%x emi_size=%d\n",
+	pr_info("[%s][%s] Connsys emi_base=0x%llx emi_size=%d\n",
 			__func__, g_type_name[conn_type], emi_base, emi_size);
 
 	if (emi_size == 0) {
@@ -1654,7 +1654,7 @@ void* connsys_coredump_init(
 	ctx->emi_virt_addr_base =
 		ioremap(ctx->emi_phy_addr_base, ctx->emi_size);
 	if (ctx->emi_virt_addr_base == 0) {
-		pr_err("Remap emi fail (0x%08x) size=%d",
+		pr_err("Remap emi fail (0x%llx) size=%d",
 			ctx->emi_phy_addr_base, ctx->emi_size);
 		goto error_exit;
 	}

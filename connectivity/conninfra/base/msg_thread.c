@@ -272,7 +272,7 @@ int msg_evt_put_op_to_active(struct msg_thread_ctx *ctx, struct msg_op *op)
 							wait_ret, op->result);*/
 
 		if (wait_ret == 0) {
-			pr_warn("opId(%d) completion timeout, op=[%d,%d,%d,%d]\n",
+			pr_warn("opId(%d) completion timeout, op=[%zu,%zu,%zu,%zu]\n",
 				op->op.op_id,
 				op->op.op_data[0],
 				op->op.op_data[1],
