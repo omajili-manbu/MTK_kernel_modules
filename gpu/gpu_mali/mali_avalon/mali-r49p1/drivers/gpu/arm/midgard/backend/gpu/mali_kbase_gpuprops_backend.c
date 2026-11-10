@@ -43,8 +43,15 @@ int kbase_backend_gpuprops_get(struct kbase_device *kbdev, struct kbasep_gpuprop
 
 #if IS_ENABLED(CONFIG_MTK_GPUFREQ_V2) && !IS_ENABLED(CONFIG_MTK_GPU_LEGACY)
 	shader_present = gpufreq_get_shader_present();
-	if (shader_present &&
-		((regdump->shader_present | shader_present) == regdump->shader_present)) {
+	if (!shader_present) {
+		/*
+		 * rodin 6.18 (2026-11-10): the gpufreq stack may be absent
+		 * (e.g. recovery boot); without its shader table the
+		 * reconciliation is meaningless, keep the raw HW read.
+		 */
+		pr_info("%s,gpufreq shader present unavailable, HW: 0x%llx\n",
+			__func__, regdump->shader_present);
+	} else if ((regdump->shader_present | shader_present) == regdump->shader_present) {
 		regdump->shader_present &= shader_present;
 	} else {
 		pr_info("%s,illegal shader present , HW: 0x%llx, SW: 0x%x\n",
@@ -129,8 +136,15 @@ int kbase_backend_gpuprops_get_curr_config(struct kbase_device *kbdev,
 
 #if IS_ENABLED(CONFIG_MTK_GPUFREQ_V2) && !IS_ENABLED(CONFIG_MTK_GPU_LEGACY)
 	shader_present = gpufreq_get_shader_present();
-	if (shader_present &&
-		((curr_config_regdump->shader_present | shader_present) == curr_config_regdump->shader_present)) {
+	if (!shader_present) {
+		/*
+		 * rodin 6.18 (2026-11-10): the gpufreq stack may be absent
+		 * (e.g. recovery boot); without its shader table the
+		 * reconciliation is meaningless, keep the raw HW read.
+		 */
+		pr_info("%s,gpufreq shader present unavailable, HW: 0x%llx\n",
+			__func__, curr_config_regdump->shader_present);
+	} else if ((curr_config_regdump->shader_present | shader_present) == curr_config_regdump->shader_present) {
 		curr_config_regdump->shader_present &= shader_present;
 	} else {
 		pr_info("%s,illegal shader present , HW: 0x%llx, SW: 0x%x\n",
